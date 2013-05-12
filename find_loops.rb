@@ -13,7 +13,7 @@ class Tracer
     @p = p
     @r = p-1
     @in_loop = false
-    @loop_ary = []
+    @loop_ary = [@now]
     @lp = Lp.new
     @lp.p = p
     @trace = []
@@ -28,24 +28,22 @@ class Tracer
     if start
       @now = start
     end
+    @loop_ary = [@now]
     @shadow = @now
     until @in_loop
-      down
-      if @now < start or @now == 1
+      shadow_down
+      @loop_ary.push @shadow
+      shadow_down
+      @loop_ary.push @shadow
+      if @shadow == 1
         return nil
       end
+      @loop_ary.shift
+      @now = @loop_ary[0]
       @trace.push @now
-      shadow_down
-      shadow_down
       @in_loop = (@shadow == @now)
     end
-    sentinel = @now
-    @loop_ary.push @now
-    down
-    while sentinel != @now
-      @loop_ary.push @now
-      down
-    end
+    @loop_ary = @loop_ary[0..(@loop_ary[1..-1].index @loop_ary[0])]
     @lp.size = @loop_ary.size
     @lp.min = @loop_ary.min
     @lp.max = @loop_ary.max
@@ -144,10 +142,11 @@ end
 
 def find_loops p
   loops = []
-  numbers = (2..300000).to_a.select{|n| n if n % (p-1) != 0 }
+  seed = 10000000
+  numbers = (seed..seed+300000).to_a.select{|n| n if n % (p-1) != 0 }
   while numbers.size > 0
     n = numbers.shift
-    t = Tracer.new p
+    t = Tracer.new p, n
     print "\r#{n}"
     fallen = t.down_to_loop n
     numbers -= t.trace
@@ -165,7 +164,7 @@ def find_loops p
   return loops
 end
 if __FILE__ == $0
-  (3651..15000).each{|p|
+  (4..9).each{|p|
     puts "  start check p: #{p}"
     find_loops p
   }
