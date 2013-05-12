@@ -125,9 +125,8 @@ class Tracer
   end
 
   def write_sheet
-    session = GoogleDrive.login("skkmania@gmail.com", "wajiwaji2009")
-  # https://docs.google.com/spreadsheet/ccc?key=0AtsWWiWPzmSbdGR4YU1sQjgtTmdkU29Pc3BqcEpUYXc#gid=0
-    ws = session.spreadsheet_by_key("0AtsWWiWPzmSbdGR4YU1sQjgtTmdkU29Pc3BqcEpUYXc").worksheets[1]
+    session = GoogleDrive.login(@address, @pwd)
+    ws = session.spreadsheet_by_key(@key).worksheets[1]
     last_row = ws.num_rows + 1
     ws[last_row, 1] = @lp.p
     ws[last_row, 2] = @lp.id
@@ -141,12 +140,17 @@ class Tracer
 end
 
 def find_loops p
+  lines = open('./.googledrive.conf').readlines.map{|l| l.chomp }
+  address = lines[0].split(':')[1]
+  pwd = lines[1].split(':')[1]
+  key = lines[2].split(':')[1]
   loops = []
   seed = 10000000
   numbers = (seed..seed+300000).to_a.select{|n| n if n % (p-1) != 0 }
   while numbers.size > 0
     n = numbers.shift
     t = Tracer.new p, n
+    t.set_google address, pwd, key
     print "\r#{n}"
     fallen = t.down_to_loop n
     numbers -= t.trace
