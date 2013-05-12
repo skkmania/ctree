@@ -124,6 +124,12 @@ class Tracer
     return true
   end
 
+  def set_google address, pwd, key
+    @address = address
+    @pwd = pwd
+    @key = key
+  end
+
   def write_sheet
     session = GoogleDrive.login(@address, @pwd)
     ws = session.spreadsheet_by_key(@key).worksheets[1]
