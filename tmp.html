@@ -1,5 +1,6 @@
 <html>
 <head>
+<script src='http://sigmajs.org/js/sigma.min.js'></script>
 </head>
 <body>
 <script>
@@ -23,7 +24,8 @@ maxRatio: 32
 
 // Parse a GEXF encoded file to fill the graph
 // (requires "sigma.parseGexf.js" to be included)
-sigInst.parseGexf('./tmp.gexf');
+//sigInst.parseGexf('./tmp.gexf');
+sigInst.parseGexf('file:///home/skphack/workspace/ctree/tmp.gexf');
 
 // Draw the graph :
 sigInst.draw();
@@ -35,5 +37,6 @@ document.addEventListener("DOMContentLoaded", init, false);
 window.onload = init;
 }
 </script>
+<div id='sigma-example'></div>
 </body>
 </html>
