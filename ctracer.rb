@@ -3,6 +3,7 @@
 # ctracer.rb
 require 'fileutils'
 require 'logger'
+require 'gexf'
 require "google_drive"
 
 Lp = Struct.new :p, :id, :size, :min, :max, :pattern
@@ -57,6 +58,33 @@ class CTracer
     else
       return false
     end
+  end
+
+  def to_gexf level
+    @required_level = level
+    graph = GEXF::Graph.new
+    graph.define_node_attribute(:value, :type => GEXF::Attribute::INTEGER)
+    graph.define_node_attribute(:level, :type => GEXF::Attribute::INTEGER)
+    graph.define_node_attribute(:rightable, :type => GEXF::Attribute::BOOLEAN, :default => false)
+
+    @nodes = []
+    @nodes[0] = graph.create_node(:label => 'n0')
+    @nodes[0][:value] = @now
+    @nodes[0][:level] = 0
+    forward
+    count = 1
+    while @current_level > 0
+      @nodes[count] = graph.create_node(:label => "n#{count.to_s}")
+      @nodes[count][:value] = @now
+      @nodes[count][:level] = @current_level
+      forward
+      @nodes[count - 1].connect_to(@nodes[count])
+      if @prev_move == 'R'
+        @nodes[count - 1][:rightable] = true
+      end
+      count += 1
+    end
+    graph.to_xml
   end
 
   # 右回りに木を走査する
@@ -309,8 +337,12 @@ def find_loops p
 end
 
 if __FILE__ == $0
+=begin
   (3651..15000).each{|p|
     puts "  start check p: #{p}"
     find_loops p
   }
+=end
+  t = CTracer.new(p:4, now:63, q:[0, 2, 1])
+  puts t.to_gexf 5
 end
