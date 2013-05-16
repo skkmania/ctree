@@ -1,34 +1,68 @@
 <html>
 <head>
 <script src='http://sigmajs.org/js/sigma.min.js'></script>
-</head>
-<body>
+<script src='file:///home/skphack/workspace/sigma.js/plugins/sigma.parseGexf.js');
+
 <script>
+  function handleFileSelect(evt) {
+    var files = evt.target.files; // FileList object
+
+    // files is a FileList of File objects. List some properties.
+    var output = [];
+    for (var i = 0, f; f = files[i]; i++) {
+alert(f.name);
+      output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+                  f.size, ' bytes, last modified: ',
+                  f.lastModifiedDate.toLocaleDateString(), '</li>');
+    }
+alert(output.size);
+    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+
+    var reader = new FileReader();
+
+
+    if (files[0].type === 'text/plain') {
+
+        var reader = new FileReader();
+
+        //エラー処理
+        reader.onerror = function(e) {
+            console.log('error', e.target.error.code);
+        }
+        //読み込み後の処理
+        reader.onload = function(e){
+          sigInst.parseGexf(e.target.result);
+          // Draw the graph :
+          sigInst.draw();
+        };
+        reader.readAsText(files[0], 'UTF-8');
+    }
+
+  }
+
+
 function init() {
+
+document.getElementById('files').addEventListener('change', handleFileSelect, false);
+
 // Instanciate sigma.js and customize rendering :
 var sigInst = sigma.init(document.getElementById('sigma-example')).drawingProperties({
-defaultLabelColor: '#fff',
-defaultLabelSize: 14,
-defaultLabelBGColor: '#fff',
-defaultLabelHoverColor: '#000',
-labelThreshold: 6,
-defaultEdgeType: 'curve'
-}).graphProperties({
-minNodeSize: 0.5,
-maxNodeSize: 5,
-minEdgeSize: 1,
-maxEdgeSize: 1
-}).mouseProperties({
-maxRatio: 32
-});
+                                                                     defaultLabelColor: '#fff',
+                                                                     defaultLabelSize: 14,
+                                                                     defaultLabelBGColor: '#fff',
+                                                                     defaultLabelHoverColor: '#000',
+                                                                     labelThreshold: 6,
+                                                                     defaultEdgeType: 'curve'
+                                                                   }).graphProperties({
+                                                                     minNodeSize: 0.5,
+                                                                     maxNodeSize: 5,
+                                                                     minEdgeSize: 1,
+                                                                     maxEdgeSize: 1
+                                                                   }).mouseProperties({
+                                                                     maxRatio: 32
+                                                                   });
 
-// Parse a GEXF encoded file to fill the graph
-// (requires "sigma.parseGexf.js" to be included)
-//sigInst.parseGexf('./tmp.gexf');
-sigInst.parseGexf('file:///home/skphack/workspace/ctree/tmp.gexf');
 
-// Draw the graph :
-sigInst.draw();
 }
 
 if (document.addEventListener) {
@@ -37,6 +71,10 @@ document.addEventListener("DOMContentLoaded", init, false);
 window.onload = init;
 }
 </script>
+</head>
+<body>
+<input type="file" id="files" name="files[]" multiple />
+<output id="list"></output>
 <div id='sigma-example'></div>
 </body>
 </html>
