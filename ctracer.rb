@@ -21,9 +21,14 @@ class CTracer
     @trace = []
     @trace_pattern = ''
     @current_level = 0
+    @current_reach = 0
     @required_level = 0
+    @max_reach = 0
+    @prev_reach = []
     @prev_move = 'L'
+    @left_reach = 0
     @levels = Hash.new{|h,k|h[k]=[]}
+    @expr_hash = {}
   end
   attr_accessor :now, :loop_ary, :trace, :lp, :required_level
   attr_reader :p,:r,:trace_pattern, :current_level, :levels
@@ -65,6 +70,8 @@ class CTracer
     graph = GEXF::Graph.new
     graph.define_node_attribute(:value, :type => GEXF::Attribute::INTEGER)
     graph.define_node_attribute(:level, :type => GEXF::Attribute::INTEGER)
+    graph.define_node_attribute(:reach, :type => GEXF::Attribute::INTEGER)
+    graph.define_node_attribute(:left_reach, :type => GEXF::Attribute::INTEGER)
     graph.define_node_attribute(:expression, :type => GEXF::Attribute::STRING)
     graph.define_node_attribute(:rightable, :type => GEXF::Attribute::BOOLEAN, :default => false)
 
@@ -72,17 +79,20 @@ class CTracer
     @nodes[0] = graph.create_node(:label => @now.to_s)
     @nodes[0][:value] = @now
     @nodes[0][:level] = 0
-    @expression = @now.to_s
-    @nodes[0][:expression] = @expression
+    @nodes[0][:reach] = 0
+    @nodes[0][:left_reach] = 0
+    @expr_hash[@now] = @now.to_s
+    @nodes[0][:expression] = @expr_hash[@now]
     @prev_value = @now
-    @prev_expression = @expression
     forward
     while @current_level > 0
       if @prev_move == 'L' or @prev_move == 'R'
         node = graph.create_node(:label => "#{@now.to_s}")
         node[:value] = @now
         node[:level] = @current_level
-        node[:expression] = @expression
+        node[:reach] = @current_reach
+        node[:left_reach] = @left_reach
+        node[:expression] = @expr_hash[@now]
         prev_node = @nodes.find{|n| n[:value] == @prev_value }
         prev_node.connect_to node if prev_node
         if @prev_move == 'R'
@@ -104,37 +114,44 @@ class CTracer
   #    r : Rの反対 @now = @p * @now + q
   def forward
     if @current_level < @required_level
-      @prev_expression = @expression
       @prev_value = @now
       case @prev_move
       when 'L'
         up_left
         @prev_move = 'L'
         @current_level += 1
+        @left_reach += 1
       when 'l'
         if up_rightable?
           up_right
           @prev_move = 'R'
           @current_level += 1
+          @prev_reach.push @current_reach
+          @max_reach += 1
+          @current_reach = @max_reach 
         else
           if down_leftable?
             down_left
             @prev_move = 'l'
             @current_level -= 1
+            @left_reach -= 1
           else
             down_right
             @prev_move = 'r'
             @current_level -= 1
+            @current_reach = @prev_reach.pop
           end
         end
       when 'r'
         down_left
         @prev_move = 'l'
         @current_level -= 1
+        @left_reach -= 1
       when 'R'
         up_left
         @prev_move = 'L'
         @current_level += 1
+        @left_reach += 1
       else
         raise '[BUG]impossible prev_move in forward'
       end
@@ -145,10 +162,12 @@ class CTracer
           down_left
           @prev_move = 'l'
           @current_level -= 1
+          @left_reach -= 1
         when 'R'
           down_right
           @prev_move = 'r'
           @current_level -= 1
+          @current_reach = @prev_reach.pop
         else
           raise '[BUG]went over level?'
         end
@@ -255,7 +274,8 @@ class CTracer
       next if div == 0
       if mod == 0 and (div * @p + @q[div % @r]) == @now
         @up_right = div
-        @expression = "((#{@prev_expression})-#{@q[div % @r]})/#{@p.to_s}"
+       # @expression = "((#{@prev_expression})-#{@q[div % @r]})/#{@p.to_s}"
+        @expr_hash[@up_right] = "((#{@expr_hash[@prev_value]})-#{@q[div % @r]})/#{@p.to_s}"
         return true
       end
     }
@@ -265,18 +285,18 @@ class CTracer
 
   def up_left
     @now = @now * @r
-    @expression = "#{@r.to_s}*(#{@prev_expression})"
+    @expr_hash[@now] = "#{@r.to_s}*(#{@expr_hash[@prev_value]})"
   end
 
   def down_right
     supplement = @q[@now % @r]
     @now = @p * @now + supplement
-    @expression = "#{@r.to_s}*(#{@prev_expression})+#{supplement.to_s})"
+    # @expression = "#{@r.to_s}*(#{@prev_expression})+#{supplement.to_s})"
   end
 
   def down_left
     @now = @now / @r
-    @expression = "(#{@prev_expression})/#{@r.to_s}"
+    # @expression = "(#{@prev_expression})/#{@r.to_s}"
   end
 
   def down_leftable?
