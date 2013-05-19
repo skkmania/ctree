@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.1draft" version="1.1" xmlns:viz="http://www.gexf.net/1.1draft/viz" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/1.1draft http://www.gexf.net/1.1draft/gexf.xsd">
+  <meta lastmodifieddate="2013-05-18">
+    <creator>Gephi 0.8</creator>
+    <description></description>
+  </meta>
+  <graph defaultedgetype="undirected" timeformat="double" mode="dynamic">
+    <attributes class="node" mode="static">
+      <attribute id="1" title="value" type="integer"></attribute>
+      <attribute id="2" title="level" type="integer"></attribute>
+      <attribute id="3" title="expression" type="string"></attribute>
+      <attribute id="4" title="rightable" type="boolean"></attribute>
+    </attributes>
+    <nodes>
+      <node id="1" label="63">
+        <attvalues>
+          <attvalue for="1" value="63"></attvalue>
+          <attvalue for="2" value="0"></attvalue>
+          <attvalue for="3" value="63"></attvalue>
+        </attvalues>
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-866.44556" y="-452.93622"></viz:position>
+        <viz:color r="153" g="153" b="153"></viz:color>
+      </node>
+      <node id="2" label="189">
+        <attvalues>
+          <attvalue for="1" value="189"></attvalue>
+          <attvalue for="2" value="1"></attvalue>
+          <attvalue for="3" value="3*(63)"></attvalue>
+          <attvalue for="4" value="true"></attvalue>
+        </attvalues>
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-1003.58844" y="-274.90497"></viz:position>
+        <viz:color r="153" g="153" b="153"></viz:color>
+      </node>
+      <node id="3" label="567">
+        <attvalues>
+          <attvalue for="1" value="567"></attvalue>
+          <attvalue for="2" value="2"></attvalue>
+          <attvalue for="3" value="3*(3*(63))"></attvalue>
+        </attvalues>
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-1097.0164" y="-127.120094"></viz:position>
+        <viz:color r="153" g="153" b="153"></viz:color>
+      </node>
+      <node id="4" label="1701">
+        <attvalues>
+          <attvalue for="1" value="1701"></attvalue>
+          <attvalue for="2" value="3"></attvalue>
+          <attvalue for="3" value="3*(3*(3*(63)))"></attvalue>
+          <attvalue for="4" value="true"></attvalue>
+        </attvalues>
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-1186.2639" y="17.134836"></viz:position>
+        <viz:color r="153" g="153" b="153"></viz:color>
+      </node>
+      <node id="5" label="5103">
+        <attvalues>
+          <attvalue for="1" value="5103"></attvalue>
+          <attvalue for="2" value="4"></attvalue>
+          <attvalue for="3" value="3*(3*(3*(3*(63))))"></attvalue>
+        </attvalues>
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-1261.6674" y="131.50473"></viz:position>
+        <viz:color r="153" g="153" b="153"></viz:color>
+      </node>
+      <node id="6" label="15309">
+        <attvalues>
+          <attvalue for="1" value="15309"></attvalue>
+          <attvalue for="2" value="5"></attvalue>
+          <attvalue for="3" value="3*(3*(3*(3*(3*(63)))))"></attvalue>
+        </attvalues>
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-1366.7008" y="276.62253"></viz:position>
+        <viz:color r="153" g="153" b="153"></viz:color>
+      </node>
+      <node id="7" label="425">
+        <attvalues>
+          <attvalue for="1" value="425"></attvalue>
+          <attvalue for="2" value="4"></attvalue>
+          <attvalue for="3" value="((((3*(3*(3*(3*(63)))))/3)/3)-1)/4"></attvalue>
+        </attvalues>
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-1085.057" y="120.64151"></viz:position>
+        <viz:color r="153" g="153" b="153"></viz:color>
+      </node>
+      <node id="8" label="1275">
+        <attvalues>
+          <attvalue for="1" value="1275"></attvalue>
+          <attvalue for="2" value="5"></attvalue>
+          <attvalue for="3" value="3*(((((3*(3*(3*(3*(63)))))/3)/3)-1)/4)"></attvalue>
+        </attvalues>
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-1202.6047" y="283.68707"></viz:position>
+        <viz:color r="153" g="153" b="153"></viz:color>
+      </node>
+      <node id="9" label="47">
+        <attvalues>
+          <attvalue for="1" value="47"></attvalue>
+          <attvalue for="2" value="2"></attvalue>
+          <attvalue for="3" value="((((3*((((((3*(3*(3*(3*(63)))))/3)/3)-1)/4)/3)+1))/3)/3)-1)/4"></attvalue>
+        </attvalues>
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-724.36084" y="-96.30288"></viz:position>
+        <viz:color r="153" g="153" b="153"></viz:color>
+      </node>
+      <node id="10" label="141">
+        <attvalues>
+          <attvalue for="1" value="141"></attvalue>
+          <attvalue for="2" value="3"></attvalue>
+          <attvalue for="3" value="3*(((((3*((((((3*(3*(3*(3*(63)))))/3)/3)-1)/4)/3)+1))/3)/3)-1)/4)"></attvalue>
+          <attvalue for="4" value="true"></attvalue>
+        </attvalues>
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-819.83997" y="33.048126"></viz:position>
+        <viz:color r="153" g="153" b="153"></viz:color>
+      </node>
+      <node id="11" label="423">
+        <attvalues>
+          <attvalue for="1" value="423"></attvalue>
+          <attvalue for="2" value="4"></attvalue>
+          <attvalue for="3" value="3*(3*(((((3*((((((3*(3*(3*(3*(63)))))/3)/3)-1)/4)/3)+1))/3)/3)-1)/4))"></attvalue>
+        </attvalues>
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-914.10986" y="142.7733"></viz:position>
+        <viz:color r="153" g="153" b="153"></viz:color>
+      </node>
+      <node id="12" label="1269">
+        <attvalues>
+          <attvalue for="1" value="1269"></attvalue>
+          <attvalue for="2" value="5"></attvalue>
+          <attvalue for="3" value="3*(3*(3*(((((3*((((((3*(3*(3*(3*(63)))))/3)/3)-1)/4)/3)+1))/3)/3)-1)/4)))"></attvalue>
+        </attvalues>
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-1018.54425" y="290.6451"></viz:position>
+        <viz:color r="153" g="153" b="153"></viz:color>
+      </node>
+      <node id="13" label="35">
+        <attvalues>
+          <attvalue for="1" value="35"></attvalue>
+          <attvalue for="2" value="4"></attvalue>
+          <attvalue for="3" value="((((3*(3*(((((3*((((((3*(3*(3*(3*(63)))))/3)/3)-1)/4)/3)+1))/3)/3)-1)/4)))/3)/3)-1)/4"></attvalue>
+        </attvalues>
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-722.3429" y="157.02512"></viz:position>
+        <viz:color r="153" g="153" b="153"></viz:color>
+      </node>
+      <node id="14" label="105">
+        <attvalues>
+          <attvalue for="1" value="105"></attvalue>
+          <attvalue for="2" value="5"></attvalue>
+          <attvalue for="3" value="3*(((((3*(3*(((((3*((((((3*(3*(3*(3*(63)))))/3)/3)-1)/4)/3)+1))/3)/3)-1)/4)))/3)/3)-1)/4)"></attvalue>
+        </attvalues>
+        <viz:size value="10.0"></viz:size>
+        <viz:position x="-854.8446" y="297.7815"></viz:position>
+        <viz:color r="153" g="153" b="153"></viz:color>
+      </node>
+    </nodes>
+    <edges>
+      <edge source="1" target="2">
+        <attvalues>
+          <attvalue for="weight" value="1.0"></attvalue>
+        </attvalues>
+      </edge>
+      <edge source="2" target="3">
+        <attvalues>
+          <attvalue for="weight" value="1.0"></attvalue>
+        </attvalues>
+      </edge>
+      <edge id="8" source="2" target="9">
+        <attvalues>
+          <attvalue for="weight" value="1.0"></attvalue>
+        </attvalues>
+      </edge>
+      <edge id="3" source="3" target="4">
+        <attvalues>
+          <attvalue for="weight" value="1.0"></attvalue>
+        </attvalues>
+      </edge>
+      <edge id="4" source="4" target="5">
+        <attvalues>
+          <attvalue for="weight" value="1.0"></attvalue>
+        </attvalues>
+      </edge>
+      <edge source="4" target="7">
+        <attvalues>
+          <attvalue for="weight" value="1.0"></attvalue>
+        </attvalues>
+      </edge>
+      <edge id="5" source="5" target="6">
+        <attvalues>
+          <attvalue for="weight" value="1.0"></attvalue>
+        </attvalues>
+      </edge>
+      <edge id="7" source="7" target="8">
+        <attvalues>
+          <attvalue for="weight" value="1.0"></attvalue>
+        </attvalues>
+      </edge>
+      <edge source="9" target="10">
+        <attvalues>
+          <attvalue for="weight" value="1.0"></attvalue>
+        </attvalues>
+      </edge>
+      <edge source="10" target="11">
+        <attvalues>
+          <attvalue for="weight" value="1.0"></attvalue>
+        </attvalues>
+      </edge>
+      <edge id="12" source="10" target="13">
+        <attvalues>
+          <attvalue for="weight" value="1.0"></attvalue>
+        </attvalues>
+      </edge>
+      <edge id="11" source="11" target="12">
+        <attvalues>
+          <attvalue for="weight" value="1.0"></attvalue>
+        </attvalues>
+      </edge>
+      <edge source="13" target="14">
+        <attvalues>
+          <attvalue for="weight" value="1.0"></attvalue>
+        </attvalues>
+      </edge>
+    </edges>
+  </graph>
+</gexf>

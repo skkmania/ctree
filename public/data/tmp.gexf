@@ -1,16 +1,6 @@
-require 'sinatra'
-require 'sinatra/reloader'
-
-set :bind, '0.0.0.0'
-set :port, 8888
-
-get '/' do
-  "Hello World."
-end
-
-get '/gexf' do
-  content_type 'text/xml'
-  %!<graph defaultedgetype="undirected" idtype="string" mode="static">
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft" version="1.2" xmlns:viz="http://www.gexf.net/1.2draft/viz" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd">
+  <graph defaultedgetype="undirected" idtype="string" mode="static">
     <attributes class="node">
       <attribute id="1" title="value" type="integer"/>
       <attribute id="2" title="level" type="integer"/>
@@ -205,5 +195,4 @@ get '/gexf' do
       <edge id="25" source="25" target="26" type="undirected"/>
     </edges>
   </graph>
-</gexf>!
-end
+</gexf>

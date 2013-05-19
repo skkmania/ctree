@@ -65,24 +65,32 @@ class CTracer
     graph = GEXF::Graph.new
     graph.define_node_attribute(:value, :type => GEXF::Attribute::INTEGER)
     graph.define_node_attribute(:level, :type => GEXF::Attribute::INTEGER)
+    graph.define_node_attribute(:expression, :type => GEXF::Attribute::STRING)
     graph.define_node_attribute(:rightable, :type => GEXF::Attribute::BOOLEAN, :default => false)
 
     @nodes = []
-    @nodes[0] = graph.create_node(:label => 'n0')
+    @nodes[0] = graph.create_node(:label => @now.to_s)
     @nodes[0][:value] = @now
     @nodes[0][:level] = 0
+    @expression = @now.to_s
+    @nodes[0][:expression] = @expression
+    @prev_value = @now
+    @prev_expression = @expression
     forward
-    count = 1
     while @current_level > 0
-      @nodes[count] = graph.create_node(:label => "n#{count.to_s}")
-      @nodes[count][:value] = @now
-      @nodes[count][:level] = @current_level
-      forward
-      @nodes[count - 1].connect_to(@nodes[count])
-      if @prev_move == 'R'
-        @nodes[count - 1][:rightable] = true
+      if @prev_move == 'L' or @prev_move == 'R'
+        node = graph.create_node(:label => "#{@now.to_s}")
+        node[:value] = @now
+        node[:level] = @current_level
+        node[:expression] = @expression
+        prev_node = @nodes.find{|n| n[:value] == @prev_value }
+        prev_node.connect_to node if prev_node
+        if @prev_move == 'R'
+          prev_node[:rightable] = true
+        end
+        @nodes.push node
       end
-      count += 1
+      forward
     end
     graph.to_xml
   end
@@ -96,6 +104,8 @@ class CTracer
   #    r : Rの反対 @now = @p * @now + q
   def forward
     if @current_level < @required_level
+      @prev_expression = @expression
+      @prev_value = @now
       case @prev_move
       when 'L'
         up_left
@@ -245,6 +255,7 @@ class CTracer
       next if div == 0
       if mod == 0 and (div * @p + @q[div % @r]) == @now
         @up_right = div
+        @expression = "((#{@prev_expression})-#{@q[div % @r]})/#{@p.to_s}"
         return true
       end
     }
@@ -254,14 +265,18 @@ class CTracer
 
   def up_left
     @now = @now * @r
+    @expression = "#{@r.to_s}*(#{@prev_expression})"
   end
 
   def down_right
-    @now = @p * @now + @q[@now % @r]
+    supplement = @q[@now % @r]
+    @now = @p * @now + supplement
+    @expression = "#{@r.to_s}*(#{@prev_expression})+#{supplement.to_s})"
   end
 
   def down_left
     @now = @now / @r
+    @expression = "(#{@prev_expression})/#{@r.to_s}"
   end
 
   def down_leftable?

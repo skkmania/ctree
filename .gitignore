@@ -1,4 +1,5 @@
 *.swp
 *.bak
 *.log
+public/js/vendor/*
 .googledrive.conf
