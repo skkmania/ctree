@@ -230,7 +230,6 @@ class CTracer
   end
       
   def down step=nil
-# print "\r now: #@now"
     div, mod = @now.divmod @r
     if mod == 0
       @now = div
@@ -379,5 +378,5 @@ if __FILE__ == $0
   }
 =end
   t = CTracer.new(p:4, now:63, q:[0, 2, 1])
-  puts t.to_gexf 5
+  puts t.to_gexf 7
 end
