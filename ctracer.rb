@@ -8,12 +8,18 @@ require "google_drive"
 
 Lp = Struct.new :p, :id, :size, :min, :max, :pattern
 
+class CTStandardError < StandardError; end
+class CTArgumentError < ArgumentError; end
+class CTDirectionError < ArgumentError; end
+class CTValidateQError < ArgumentError; end
+
 class CTracer
   def initialize(p: nil, now: nil, q: nil)
     @now = (now ? now : 1)
     @p = (p ? p : 3)
     @r = p-1
-    @q = (q ? q : (@r..1).to_a)
+    @q = (q ? q : [0] + (1..@r).to_a.reverse)
+    validate_q
     @in_loop = false
     @loop_ary = []
     @lp = Lp.new
@@ -30,11 +36,45 @@ class CTracer
     @levels = Hash.new{|h,k|h[k]=[]}
     @expr_hash = {}
   end
-  attr_accessor :now, :loop_ary, :trace, :lp, :required_level
+  attr_accessor :q, :now, :loop_ary, :trace, :lp, :required_level
   attr_reader :p,:r,:trace_pattern, :current_level, :levels
 
-  def set x
-    @now = x
+  def validate_q
+    raise CTValidateQError, "#{@q.to_s} does not have #{@r} elements" if @q.length != @r
+    std_q = [0] + (1..(@r-1)).to_a.reverse
+    wrong_pairs = (std_q.zip(@q))[1..-1].reject{|p| (p[1] == p[0]) or ((p[1]-p[0]) % @r == 0) }
+    if wrong_pairs.size > 0
+      raise CTValidateQError, "#{@q.to_s} have wrong elements : #{wrong_pairs.map{|pair| pair[1] }.to_s}"
+    end
+  end  
+
+  def modify_q index, value
+    @q[index] = value
+  end
+
+  def type
+    @now % @p
+  end
+
+  def branches
+    (1..(@r-1)).to_a.select{|direction|
+      div, mod = (@now - @q[direction]).divmod @p
+      mod == 0 and ((div * @p) + @q[div % @r]) == @now
+    }.size + 1
+    # + 1 because up branch for direction-0 always exists  
+  end
+
+  def up
+    return (lambda{|direction|
+      return @now = @now * @r if direction == 0
+      div, mod = (@now - @q[direction]).divmod @p
+      raise CTStandardError if div == 0
+      if mod == 0 and ((div * @p) + @q[div % @r]) == @now
+        @now = div
+      else
+        raise CTDirectionError, "can not go to #{direction}"
+      end
+    })
   end
 
   # x まで上がれるか?
