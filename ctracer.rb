@@ -39,7 +39,6 @@ class CTracer
     ret = { 0 => @now * @r }
     (1..(@r-1)).each{|direction|
       div, mod = (@now - @q[direction]).divmod @p
-      #raise CTStandardError,"#{@now} - @q[#{direction}]/#{@p} became 0." if div == 0
       next if div == 0
       if mod == 0 and ((div * @p) + @q[div % @r]) == @now
         ret[direction] = div

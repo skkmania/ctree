@@ -26,6 +26,9 @@ class Node
     level.parent = self
     @child = level
   end
+  def is_a_same_node? node
+    @value == node.value
+  end
 end
 
 class Level
@@ -47,6 +50,25 @@ class Level
       yield node
     }
   end
+ 
+  def reject
+    @nodes.each{|node|
+      @nodes.delete node if (yield node)
+    }
+    self
+  end
+
+  def include_a_same_node? node
+    @nodes.each{|n|
+      return true if n.is_a_same_node? node
+    }
+    return false
+  end
+
+  def pp
+    v_ary = @nodes.map{|n| n.value }
+    print v_ary.to_s
+  end
 end
 
 class Levels
@@ -59,8 +81,8 @@ class Levels
     @parent = parent
   end
 
-  def push x
-    @levels.push x
+  def push lvl
+    @levels.push lvl
   end
 
   def each
@@ -72,6 +94,21 @@ class Levels
   def each_node
     @levels.each{|lvl| lvl.each{|node| yield node } }
   end
+
+  def include_a_same_node? node
+    @levels.each{|lvl|
+      return true if lvl.include_a_same_node? node
+    }
+    return false
+  end
+
+  def pp
+    @levels.each{|level|
+      level.pp
+      print ", "
+    }
+  end
+
 end
 
 class CTree
@@ -94,79 +131,40 @@ class CTree
     while idx < @height do
       @tree_levels[idx].each_node{|node|
         @tracer.now = node.value
-        @tree_levels[idx+1].push node.make_child @tracer
+        lvl_candidat = node.make_child @tracer
+        lvl = lvl_candidat.reject{|n| include_a_same_node? n } 
+        @tree_levels[idx+1].push lvl if lvl.nodes.size > 0
       }
       idx += 1
     end
   end
 
   def each
+    @tree_levels.each{|lvls|
+      yield lvls
+    }
   end
 
-  def validate_q
-    raise CTValidateQError, "#{@q.to_s} does not have #{@r} elements" if @q.length != @r
-    std_q = [0] + (1..(@r-1)).to_a.reverse
-    wrong_pairs = (std_q.zip(@q))[1..-1].reject{|p| (p[1] == p[0]) or ((p[1]-p[0]) % @r == 0) }
-    if wrong_pairs.size > 0
-      raise CTValidateQError, "#{@q.to_s} have wrong elements : #{wrong_pairs.map{|pair| pair[1] }.to_s}"
-    end
-  end  
-
-  def modify_q index, value
-    @q[index] = value
+  def each_node
+    @tree_levels.each{|idx, lvls|
+      lvls.each{|lvl|
+        lvl.each{|node| yield node }
+      }
+    }
   end
 
-  def type
-    @now % @p
+  def include_a_same_node? node
+    @tree_levels.each{|idx, lvls|
+      return true if lvls.include_a_same_node? node
+    }
+    return false
   end
 
-  def branches
-    (1..(@r-1)).to_a.select{|direction|
-      div, mod = (@now - @q[direction]).divmod @p
-      mod == 0 and ((div * @p) + @q[div % @r]) == @now
-    }.size + 1
-    # + 1 because up branch for direction-0 always exists  
-  end
-
-  def up
-    return (lambda{|direction|
-      return @now = @now * @r if direction == 0
-      div, mod = (@now - @q[direction]).divmod @p
-      raise CTStandardError if div == 0
-      if mod == 0 and ((div * @p) + @q[div % @r]) == @now
-        @now = div
-      else
-        raise CTDirectionError, "can not go to #{direction}"
-      end
-    })
-  end
-
-  # x まで上がれるか?
-  # 上がれるなら、上がってself
-  # x,に着くまえにpathをたどれなくなるときは元の位置のままfalse
-  def up_to? x, path
-    dummy = CTracer.new @p, @now
-    if dummy.up_tracable? path and dummy.trace.include? x
-      @now = x
-      @trace = dummy.trace
-      return self
-    else
-      return false
-    end
-  end
-
-  # x まで降りられるか?
-  # 降りられるなら、降りてtrue
-  # loopにおちてしまいxまでたどりつけないときは元の位置のままfalse
-  def down_to? x
-    dummy = CTracer.new @p, @now
-    dummy.down_to_loop
-    if dummy.trace.include? x  or  dummy.loop_ary.include? x
-      @now = x
-      return self
-    else
-      return false
-    end
+  def pp
+    @tree_levels.each{|idx,lvls|
+      lvls.pp
+      puts
+    }
   end
 
   def to_gexf level
