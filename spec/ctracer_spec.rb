@@ -37,6 +37,17 @@ describe "CTracer#type" do
   end
 end
 
+describe "CTracer#ups" do
+  it "should return the hash of the values of this node's up branches" do
+    ct = CTracer.new(p:4, q:[0,2,1], now:10)
+    expect(ct.ups).to eq( { 0 => 30 } )
+    ct = CTracer.new(p:4, q:[0,2,1], now:9)
+    expect(ct.ups).to eq( { 0 => 27, 2 => 2 } )
+    ct = CTracer.new(p:4, q:[0,5,1], now:189)
+    expect(ct.ups).to eq( { 0 => 567, 1 => 46, 2 => 47 } )
+  end
+end
+
 describe "CTracer#branches" do
   it "should show the number of this node's up branches" do
     ct = CTracer.new(p:4, q:[0,2,1], now:10)
