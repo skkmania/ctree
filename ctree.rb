@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
 # -*- coding:utf-8 -*-
 # ctree.rb
-require './ctracer.rb'
+require 'pathname'
+require Pathname(__FILE__).expand_path.dirname.to_s +  '/ctracer.rb'
 
 class Node
   attr_accessor :value, :child, :parent, :prev_move, :mylevel

@@ -2,10 +2,11 @@
 # -*- coding:utf-8 -*-
 # ctexport.rb
 require 'fileutils'
+require 'pathname'
 require 'logger'
 require 'gexf'
 require "google_drive"
-require './ctree.rb'
+require Pathname(__FILE__).expand_path.dirname.to_s + '/ctree.rb'
 
 Lp = Struct.new :p, :id, :size, :min, :max, :pattern
 
