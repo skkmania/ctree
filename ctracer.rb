@@ -11,12 +11,14 @@ class CTracer
   def initialize(p: nil, now: nil, q: nil)
     @now = (now ? now : 1)
     @p = (p ? p : 3)
-    @r = p-1
-    @q = (q ? q : [0] + (1..@r).to_a.reverse)
+    @r = @p-1
+    @q = (q ? q : [0] + (1..(@r-1)).to_a.reverse)
+    @prev_down_move = nil
+    @prev_up_moves = nil
     validate_q
   end
   attr_accessor :q, :now
-  attr_reader :p,:r
+  attr_reader :p, :r, :prev_down_move, :prev_up_moves
 
   def validate_q
     raise CTValidateQError, "#{@q.to_s} does not have #{@r} elements" if @q.length != @r
@@ -37,11 +39,13 @@ class CTracer
 
   def ups
     ret = { 0 => @now * @r }
+    @prev_up_moves = [0]
     (1..(@r-1)).each{|direction|
       div, mod = (@now - @q[direction]).divmod @p
       next if div == 0
       if mod == 0 and ((div * @p) + @q[div % @r]) == @now
         ret[direction] = div
+        @prev_up_moves.push direction
       end
     }
     return ret
@@ -125,6 +129,8 @@ class CTracer
   def down
     div, mod = @now.divmod @r
     @now = (mod == 0 ? div : @p * @now + @q[mod] )
+    @prev_down_move = mod
+    @prev_up_moves = nil
   end
 end
 
