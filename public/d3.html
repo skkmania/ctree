@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>CTree visualization</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+  <link rel="stylesheet" href="css/jquery-ui.css">
+  <script src='js/vendor/underscore.js'></script>
+  <script src="js/vendor/jquery.min.js"></script>
+  <script src="js/vendor/jquery-ui.js"></script>
+  <script src="js/vendor/bootstrap.min.js"></script>
+  <script type="text/javascript" src="//mbostock.github.com/d3/d3.js"></script>
+  <link href="css/treevis.css" rel="stylesheet" media="screen">
+</head>
+<body>
+<div class="navbar">
+  <div class="navbar-inner">
+    <a class="brand" href="#">CTreeViz</a>
+    <ul class="nav">
+      <li class="active"><a href="#">Request</a></li>
+          <form id="request_form" class="navbar-form pull-left">
+             <span class="label">p:</span><input id="value_p" type="text" class="span1" value="4">
+             <span class="label">q:</span><input id="value_q" type="text" class="span1" value="0,2,1">
+             <span class="label">step:</span><input id="value_step" type="text" class="span1">
+             <span class="label">root:</span><input id="value_root" type="text" class="span1">
+             <span class="label">level:</span><input id="value_level" type="text" class="span1">
+             <span class="label">tgt:</span><input id="value_tgt" type="text" class="span1">
+             <span class="label">skew:</span><input id="value_skew" type="text" class="span1" value="0.4">
+             <button type="submit" class="btn">Submit</button>
+          </form>
+      <li><a href="#" class="pull-right">help</a></li>
+    </ul>
+  </div>
+</div>
+
+  <div id="viz_nodes"></div>
+  <div id="viz_edges"></div>
+	<script type="text/javascript" src="js/cctree.js"></script>
+	<script type="text/javascript" src="js/treeLayout.js"></script>
+</body>
+</html>
