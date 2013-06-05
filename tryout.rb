@@ -224,6 +224,7 @@ if __FILE__ == $0
     op.on("-p integer", "--p_start", "start of p range"){|x| opts[:p_start] = x.to_i }
     op.on("-P integer", "--p_end", "end of p range"){|x| opts[:p_end] = x.to_i }
     op.on("-o string", "--o_file", "file name for output"){|x| opts[:o_file] = x }
+    op.on("-s integer", "--steps", "number of steps down from target"){|x| opts[:steps] = x.to_i }
     op.on("-t integer", "--target", "target integer"){|x| opts[:target] = x.to_i }
     op.on("-l integer", "--limit_size", "output limit size"){|x| opts[:limit_size] = x.to_i }
     op.on("-q hash_literal", "--q_index_ranges", "q_index_ranges"){|x| opts[:q_index_ranges] = x }
@@ -240,6 +241,7 @@ if __FILE__ == $0
     to.set_google '.googledrive.conf'
     to.add_sheet DateTime.now.strftime('%Y%m%d_%H%M')
   end
+  down_steps = opts[:steps] || 30
   puts "processe starts."
   (p_start..p_end).each{|p|
     to.set_default p
@@ -247,7 +249,7 @@ if __FILE__ == $0
     to.of = open("#{o_filename}_t#{tgt.size}_p#{p}.csv",'w+') if ARGV[0] != 'google'
     while to.next_q_index do
       to.q = to.q_index_to_q
-      to.go_steps 30
+      to.go_steps down_steps
       # to.make_pass_list
       to.output o_filename
       # print "\r processing #{to.q_count}" # if to.q_count % 100 == 0
