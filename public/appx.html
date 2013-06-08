@@ -3,14 +3,59 @@
 <head>
   <meta charset="utf-8">
   <title>App X</title>
+  <style type="text/css" media="all">
+  body {
+  padding-top: 60px;
+  padding-bottom: 40px;
+  }
+  </style>
+	<link rel="stylesheet" href="css/jquery.ui.all.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+  <link rel="stylesheet" href="css/appx.css">
+	<link rel="stylesheet" href="css/demos.css">
+
 </head>
 <body>
+  <div id="toResults"></div>
+  <form id="addTree">
+    <input type="text" id="ctree_p" value="4">
+    <input type="text" id="ctree_q" value="[0,2,1]">
+    <input type="text" id="ctree_root" value="1">
+    <input type="text" id="ctree_step" value="10">
+    <input type="submit" value="add">
+  </form>
+
+  <div id="tree-container"></div>
+
   <script type="text/template" id="ctree-template">
-    <%- p %>
+    <div class='ctree_title'>
+      <span class="p_label">p:</span><%- p %>
+      <span class="q_label">q:</span><%- q %>
+
+      <span class="size_minus">[-]</span>
+      <span class="size_label">size</span>
+      <span class="size_plus">[+]</span>
+
+      <span class="op_minus">[-]</span>
+      <span class="op_label">opac</span>
+      <span class="op_plus">[+]</span>
+
+      <span class="delete">[x]</span>
+    </div>
+  </script>
+  <script type="text/template" id="toresult-template">
+    <%- pattern %>
+    <%- max_move0_len %>
   </script>
 <script src='js/vendor/underscore.js'></script>
 <script src='js/vendor/jquery-1.10.0.js'></script>
+<script src='js/vendor/jquery-ui.js'></script>
+<script src="js/vendor/d3.js"></script>
 <script src='js/vendor/backbone.js'></script>
+<script src="js/cctree.js"></script>
+<script src="js/buildTree.js"></script>
 <script src='js/appx.js'></script>
+<script src='js/toresult.js'></script>
 </body>
 </html>

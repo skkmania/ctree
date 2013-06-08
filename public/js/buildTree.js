@@ -1,150 +1,83 @@
-/**
- * Created by JetBrains RubyMine.
- * User: pavanpodila
- * Date: 7/17/11
- * Time: 4:30 PM
- * To change this template use File | Settings | File Templates.
- */
 
 //var ct = new CCTree(5,[0,19,14,9],29,10);  // 4 branch
-//var ct = new CCTree(6,[0,34,28,22,16],10,10); // 5 branch
-//var ct = new CCTree(7,[0,41,34,27,20,13],1812,10); // 6 branch
-//var ct = new CCTree(8,[0,55,47,39,31,23,15],175,10); // 7 branch
-//var ct = new CCTree(9,[0,71,62,53,44,35,26,17],1,10); // 8 branch
-//var ct = new CCTree(10,[0,89,79,69,59,49,39,29,19],1,10); // 9 branch
-//var ct = new CCTree(11,[0,109,98,87,76,65,54,43,32,21],1,10); // 10 branch
-//var ct = new CCTree(11,[0,109,98,87,76,65,54,43,32,31],1,10); // 9 branch
-var ct = new CCTree(11,[0,109,98,87,76,65,44,43,42,31],1,10); // 7 branch
-var ctData = ct.cctree;
-var treeData = {
-    name: "/",
-    contents: [
-        {
-            name: "Applications",
-            contents: [
-                { name: "Mail.app" },
-                { name: "iPhoto.app" },
-                { name: "Keynote.app" },
-                { name: "iTunes.app" },
-                { name: "XCode.app" },
-                { name: "Numbers.app" },
-                { name: "Pages.app" }
-            ]
-        },
-        {
-            name: "System",
-            contents: []
-        },
-        {
-            name: "Library",
-            contents: [
-                {
-                    name: "Application Support",
-                    contents: [
-                        { name: "Adobe" },
-                        { name: "Apple" },
-                        { name: "Google" },
-                        { name: "Microsoft" }
-                    ]
-                },
-                {
-                    name: "Languages",
-                    contents: [
-                        { name: "Ruby" },
-                        { name: "Python" },
-                        { name: "Javascript" },
-                        { name: "C#" }
-                    ]
-                },
-                {
-                    name: "Developer",
-                    contents: [
-                        { name: "4.2" },
-                        { name: "4.3" },
-                        { name: "5.0" },
-                        { name: "Documentation" }
-                    ]
-                }
-            ]
-        },
-        {
-            name: "opt",
-            contents: []
-        },
-        {
-            name: "Users",
-            contents: [
-                { name: "pavanpodila" },
-                { name: "admin" },
-                { name: "test-user" }
-            ]
-        }
-    ]
-};
+//ctData = ct.cctree;
+//
+
 
 function visit(parent, visitFn, childrenFn)
 {
-    if (!parent) return;
-
-    visitFn(parent);
-
-    var children = childrenFn(parent);
-    if (children) {
-        var count = children.length;
-        for (var i = 0; i < count; i++) {
-            visit(children[i], visitFn, childrenFn);
-        }
+  if (!parent) return;
+  visitFn(parent);
+  var children = childrenFn(parent);
+  if (children) {
+    var count = children.length;
+    for (var i = 0; i < count; i++) {
+      visit(children[i], visitFn, childrenFn);
     }
-}
+  }
+} 
 
-function buildTree(containerName, customOptions)
+function buildTree(ctData, containerName, customOptions)
 {
     // build the options object
     var options = $.extend({
         nodeRadius: 5, fontSize: 12
     }, customOptions);
-
-    
+debugger;
     // Calculate total nodes, max label length
     var totalNodes = 0;
     var maxLabelLength = 0;
-    //visit(treeData, function(d)
     visit(ctData, function(d)
     {
         totalNodes++;
-        maxLabelLength = Math.max(d.name.length, maxLabelLength);
+        maxLabelLength =  Math.max(d.name.length, maxLabelLength);
     }, function(d)
     {
-        return d.contents && d.contents.length > 0 ? d.contents : null;
+        return d.children && d.children.length > 0 ? d.children : null;
     });
 
     // size of the diagram
-    var size = { width:$(containerName).outerWidth(), height: totalNodes * 15};
+    var size = { width:(options.width || $(containerName).outerWidth()), height: totalNodes * 15};
+
+    var width = 0;
+    var height = 0;
+    var vbox_x = 0;
+    var vbox_y = 0;
+    var vbox_default_width = vbox_width = 1400;
+    var vbox_default_height = vbox_height = 1000;
 
     var tree = d3.layout.tree()
         .sort(null)
-        .size([size.height, size.width - maxLabelLength*options.fontSize])
+        .size([500,800]);
+        //.size([size.height, size.width - maxLabelLength*options.fontSize])
+        /*
+         * ここは、とりこむデータの子孫属性の名前を指定している。もともとこのソースの作成者は
+         * { "name":"abc", "contents":[{...},{...}]}
+         * という形式のデータを扱っていた。
+         * d3.jsでは子孫属性の名前は children がデフォルトなので、そのようなデータを扱う場合は
+         * この部分は必要ない。 
         .children(function(d)
         {
             return (!d.contents || d.contents.length === 0) ? null : d.contents;
         });
-
-    //var nodes = tree.nodes(treeData);
+        */
     var nodes = tree.nodes(ctData);
     var links = tree.links(nodes);
-
-    
+debugger;
     /*
         <svg>
             <g class="container" />
         </svg>
      */
-    var layoutRoot = d3.select(containerName)
+    var svgCanvas = d3.select(containerName)
         .append("svg:svg").attr("width", size.width).attr("height", size.height)
-        .append("svg:g")
-        .attr("class", "container")
-        .attr("transform", "translate(" + maxLabelLength + ",0)");
-
+        .attr("viewBox", "" + 0 + "," + 0 + "," + size.width + "," + size.height); //viewBox属性を付加
+    var layoutRoot = svgCanvas.append("svg:g").attr("class", "container")
+                              .attr("transform", "translate(" + maxLabelLength + ",0)");
+                             //.attr("transform", "translate(" + 20 + ",0)");
+console.log('------before building tree---------');
+console.log(layoutRoot);
+debugger;
 
     // Edges between nodes as a <path class="link" />
     var link = d3.svg.diagonal()
@@ -158,7 +91,27 @@ function buildTree(containerName, customOptions)
         .enter()
         .append("svg:path")
         .attr("class", "link")
-        .attr("d", link);
+        .attr("d", link)
+    .attr("fill", "none")
+    .attr("stroke", function(d)
+        {
+            var mod = parseInt(d.target.name) % (options.p - 1);
+            var scale = (mod + 1) * options.unit;
+            var color = "";
+            switch(mod%3){
+              case 0:
+                color =  "rgb(" + 0 + "," + scale + "," + scale + ")";
+                break;
+              case 1:
+                color =  "rgb(" + scale + "," + 0 + "," + scale + ")";
+                break;
+              case 2:
+                color =  "rgb(" + scale + "," + scale + "," + 0 + ")";
+                break;
+            };
+            return color;
+        })
+    .attr("stroke-width", "2");
 
 
     /*
@@ -180,12 +133,31 @@ function buildTree(containerName, customOptions)
 
     nodeGroup.append("svg:circle")
         .attr("class", "node-dot")
-        .attr("r", options.nodeRadius);
+        .attr("r", options.nodeRadius)
+        .attr("fill", function(d)
+        {
+            var mod = parseInt(d.name) % options.p;
+            var scale = (mod + 1) * options.unit;
+            var color = "";
+            switch(mod%3){
+              case 0:
+                color =  "rgb(" + 0 + "," + scale + "," + scale + ")";
+                break;
+              case 1:
+                color =  "rgb(" + scale + "," + 0 + "," + scale + ")";
+                break;
+              case 2:
+                color =  "rgb(" + scale + "," + scale + "," + 0 + ")";
+                break;
+            };
+            return color;
+        });
 
     nodeGroup.append("svg:text")
         .attr("text-anchor", function(d)
         {
-            return d.children ? "end" : "start";
+            //return d.children ? "end" : "start";
+            return "end";
         })
         .attr("dx", function(d)
         {
@@ -198,4 +170,30 @@ function buildTree(containerName, customOptions)
             return d.name;
         });
 
+    drag = d3.behavior.drag().on("drag", function(d) {
+      vbox_x -= d3.event.dx;
+      vbox_y -= d3.event.dy;
+      return layoutRoot.attr("translate", "" + vbox_x + " " + vbox_y); //基点の調整。svgタグのtranslate属性を更新
+    });
+    svgCanvas.call(drag);
+
+    zoom = d3.behavior.zoom().on("zoom", function(d) {
+      var befere_vbox_width, before_vbox_height, d_x, d_y;
+      befere_vbox_width = vbox_width;
+      before_vbox_height = vbox_height;
+      vbox_width = vbox_default_width * d3.event.scale;
+      vbox_height = vbox_default_height * d3.event.scale;
+      d_x = (befere_vbox_width - vbox_width) / 2;
+      d_y = (before_vbox_height - vbox_height) / 2;
+      vbox_x += d_x;
+      vbox_y += d_y;
+      return svgCanvas.attr("viewBox", "" + vbox_x + " " + vbox_y + " " + vbox_width + " " + vbox_height);  //svgCanvasタグのviewBox属性を更新
+    });
+    svgCanvas.call(zoom);   
+console.log('------after building tree---------');
+console.log(layoutRoot);
+console.log(svgCanvas);
+console.log('------end---------');
+debugger;
+    return svgCanvas;
 }

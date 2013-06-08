@@ -34,11 +34,11 @@
     if (lvl > this.height) return null;
     var ret = {};
     ret["name"] = now.toString();
-    ret["contents"] = [];
+    ret["children"] = [];
     this.tracer.now = now;
     _.each(this.tracer.ups(), function(v,k,list){
       new_hash = this.set_up(lvl+1, v)
-      if(new_hash) ret["contents"].push(new_hash);
+      if(new_hash) ret["children"].push(new_hash);
     }.bind(this));
     return ret;
   };

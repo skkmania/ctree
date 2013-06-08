@@ -33,7 +33,8 @@ stroke: gray;
 
 <script>
 $(function(){
-buildTree("#tree-container");
+ct = new CCTree(5,[0,19,14,9],29,10);  // 4 branch
+buildTree(ct.cctree, "#tree-container");
 });
 </script>
 
