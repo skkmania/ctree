@@ -22,9 +22,8 @@ class Tracer
     @loop_ary = [@now]
     @lp = Lp.new
     @lp.p = p
-    @trace = [] # 探索のムダを排除するため、通過点を保存し報告する
   end
-  attr_accessor :loop_ary, :trace, :lp
+  attr_accessor :loop_ary, :lp
 
   def set x
     @now = x
@@ -46,7 +45,6 @@ class Tracer
       end
       @loop_ary.shift
       @now = @loop_ary[0]
-      @trace.push @now
       @in_loop = (@shadow == @now)
     end
     @loop_ary = @loop_ary[0..(@loop_ary[1..-1].index @loop_ary[0])]
@@ -157,18 +155,12 @@ def find_loops p
   pwd = lines[1].split(':')[1]
   key = lines[2].split(':')[1]
   loops = []
-  #seed = 10**20
-  seed = 1
-  # 捜索開始点の配列を用意しておく
-  numbers = (seed..seed+300000).to_a.select{|n| n if n % (p-1) != 0 }
-  while numbers.size > 0
-    n = numbers.pop
+  seed = 10**20
+  (seed..seed+3000000).each{|n|
     t = Tracer.new p, n
     t.set_google address, pwd, key
-    print "\r#{n}, left points size: #{numbers.size}"
+    print "\r#{n}"
     fallen = t.down_to_loop n
-    # 一度通過した開始点は再度調べる必要はないので配列から外す
-    numbers -= t.trace
     next unless fallen
     if t.lp.min != 1
       t.get_pattern
@@ -181,12 +173,12 @@ def find_loops p
         system "echo loop found at p: #{p}.\n loop: #{t.loop_ary.join(',')} see GoogleDrive. | mail -s 'find_loops report from #{`hostname`}' skphack@gmail.com"
       end
     end
-  end
+  }
   return loops
 end
 if __FILE__ == $0
   # 2013.6.11 現在、ひとつしかループが発見されていないpについて捜索する
-  [6,8,9,14,15,19,20,22,23].each{|p|
+  [6,8,9,14,15,19,20,22,23,27,29,31,33,34,35,36,37,38,39,40].each{|p|
     puts "  start check p: #{p}"
     find_loops p
   }
