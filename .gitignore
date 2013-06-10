@@ -2,6 +2,7 @@
 *.bak
 *.log
 *.gexf
+css/*
 data/*
 public/js/vendor/*
 .googledrive.conf
