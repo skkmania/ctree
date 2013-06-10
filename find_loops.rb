@@ -1,6 +1,11 @@
 #!/usr/bin/env ruby
 # -*- coding:utf-8 -*-
 #
+#  find_loops.rb :
+#    p を動かし、それぞれdefaultのqによりループを探し、結果を報告する
+#    報告先は GoogleDrive spreadsheet と 標準出力
+#    GoogleDriveのsheetは、.googledrive.conf により指定する
+#
 require 'fileutils'
 require 'logger'
 require "google_drive"
@@ -8,6 +13,7 @@ require "google_drive"
 Lp = Struct.new :p, :id, :size, :min, :max, :pattern
 
 class Tracer
+  #   p と 開始点 を与えるとdefault のqを使いループに到着するまで木を下降する 
   def initialize p, now=nil
     @now = (now ? now : 1)
     @p = p
@@ -16,7 +22,7 @@ class Tracer
     @loop_ary = [@now]
     @lp = Lp.new
     @lp.p = p
-    @trace = []
+    @trace = [] # 探索のムダを排除するため、通過点を保存し報告する
   end
   attr_accessor :loop_ary, :trace, :lp
 
@@ -98,7 +104,7 @@ class Tracer
   def up_rightable?
     # standard ctree で@p, @now が整数ならこれでよい
     kouho = @now / @p
-    div, mod = kouho.divmod @r
+    mod = kouho % @r
     return false if mod == 0
     return (@p * kouho) + (@r - mod) == @now
   end
@@ -151,31 +157,38 @@ def find_loops p
   pwd = lines[1].split(':')[1]
   key = lines[2].split(':')[1]
   loops = []
-  seed = 10000000
+  #seed = 10**20
+  seed = 1
+  # 捜索開始点の配列を用意しておく
   numbers = (seed..seed+300000).to_a.select{|n| n if n % (p-1) != 0 }
   while numbers.size > 0
-    n = numbers.shift
+    n = numbers.pop
     t = Tracer.new p, n
     t.set_google address, pwd, key
-    print "\r#{n}"
+    print "\r#{n}, left points size: #{numbers.size}"
     fallen = t.down_to_loop n
+    # 一度通過した開始点は再度調べる必要はないので配列から外す
     numbers -= t.trace
     next unless fallen
     if t.lp.min != 1
       t.get_pattern
       unless loops.find{|lp| t.lp.size == lp.size and t.lp.min == lp.min }
+        # 新発見ならばidを増やし報告する
         t.lp.id = loops.size + 1
         loops.push t.lp
         t.print_loop
         t.write_sheet
+        system "echo loop found at p: #{p}.\n loop: #{t.loop_ary.join(',')} see GoogleDrive. | mail -s 'find_loops report from #{`hostname`}' skphack@gmail.com"
       end
     end
   end
   return loops
 end
 if __FILE__ == $0
-  (4..9).each{|p|
+  # 2013.6.11 現在、ひとつしかループが発見されていないpについて捜索する
+  [6,8,9,14,15,19,20,22,23].each{|p|
     puts "  start check p: #{p}"
     find_loops p
   }
+  system "echo find_loops ended. | mail -s 'find_loops report from #{`hostname`}' skphack@gmail.com"
 end
