@@ -28,13 +28,18 @@
   var CTreeView = Backbone.View.extend({
     tagName: 'div',
     className: 'ctree',
-    initialize: function() {
+    initialize: function(obj) {
+      if (obj) this.model = obj.model;
       this.model.on('destroy', this.remove, this);
     },
     events: {
       "click .delete": "destroy",
       "click .size_minus": "size_minus",
       "click .size_plus": "size_plus",
+      "click .trans_minus": "trans_minus",
+      "click .trans_plus": "trans_plus",
+      "click .updown_minus": "updown_minus",
+      "click .updown_plus": "updown_plus",
       "click .op_minus": "op_minus",
       "click .op_plus": "op_plus"
     },
@@ -44,15 +49,24 @@
       }
     },
     size_minus: function() {
-      var opacity = this.$el.css("opacity") || 1.0;
-      this.$el.css("opacity",opacity*0.8);
+      this.resizeVBox(-0.1);
     },
     size_plus: function() {
-      var opacity = this.$el.css("opacity") || 1.0;
-      opacity = (opacity*1.2 >= 1.0 ? 1.0 : opacity*1.2);
-      this.$el.css("opacity",opacity);
+      this.resizeVBox(0.1);
     },
-    op_minux: function() {
+    trans_minus: function() {
+      this.shiftVBox(0.05, 0);
+    },
+    trans_plus: function() {
+      this.shiftVBox(-0.05, 0);
+    },
+    updown_minus: function() {
+      this.shiftVBox(0, -0.05);
+    },
+    updown_plus: function() {
+      this.shiftVBox(0, 0.05);
+    },
+    op_minus: function() {
       var opacity = this.$el.css("opacity") || 1.0;
       this.$el.css("opacity",opacity*0.8);
     },
@@ -61,12 +75,32 @@
       opacity = (opacity*1.2 >= 1.0 ? 1.0 : opacity*1.2);
       this.$el.css("opacity",opacity);
     },
+    resizeVBox: function(scale) {
+      // scale must be in [-1...1]
+      //  0 < scale < 1 means making larger
+      // -1 < scale < 0 means making smaller
+      this.VBox[0] *= (1+scale);
+      this.VBox[1] *= (1+scale);
+      this.VBox[2] *= (1-scale);
+      this.VBox[3] *= (1-scale);
+      this.svgCanvas.attr("viewBox", "" + this.VBox[0] + "," + this.VBox[1] + "," + this.VBox[2] + "," + this.VBox[3] );  //svgCanvasタグのviewBox属性を更新
+    },
+    shiftVBox: function(dx,dy) {
+      // dx,dy must be in [-1...1]
+      //  0 < dx < 1 means shifting right
+      // -1 < dx < 0 means shifting left
+      //  0 < dy < 1 means shifting up
+      // -1 < dy < 0 means shifting down
+      this.VBox[0] += dx*this.VBox[2];
+      this.VBox[1] += dy*this.VBox[3];
+      this.svgCanvas.attr("viewBox", "" + this.VBox[0] + "," + this.VBox[1] + "," + this.VBox[2] + "," + this.VBox[3] );  //svgCanvasタグのviewBox属性を更新
+    },
     remove: function() {
       this.$el.remove();
     },
     template: _.template( $('#ctree-template').html() ),
     render: function() {
-      var template = this.template( this.model.toJSON() );
+      var template = this.template( this.model );
       this.$el.html(template);
       this.svgCanvas = buildTree(this.model.data, this.el,{
          p:this.model.p,
@@ -75,8 +109,7 @@
          nodeRadius: 5,
          fontSize: 12
       });
-      //var css_str = "width:" + svgCanvas.attr("width") + "px ,height:" + svgCanvas.attr("height") + "px";
-debugger;
+      this.VBox = _(this.svgCanvas.attr('viewBox').split(',')).map(function(e){return parseInt(e);})
       this.$el.addClass("ui-widget-content");
       //this.$el.css(css_str);
       this.$el.resizable();
@@ -120,6 +153,7 @@ debugger;
         step: parseInt($('#ctree_step').val())
       };
       var tree = new CTree(obj.p, obj.q, obj.root, obj.step);
+debugger;
       this.collection.add(tree);
     }
   });
@@ -138,8 +172,8 @@ debugger;
       var ctreeView = new CTreeView({model: ctree });
       this.$el.append(ctreeView.render().$el);
       ctreeView.setSizeToBBox();
-console.log(ctreeView.render().$el);
-debugger;
+//console.log(ctreeView.render().$el);
+//debugger;
     },
     render: function() {
       this.collection.each(function(ctree) {
@@ -147,8 +181,8 @@ debugger;
         this.$el.append(ctreeView.render().el);
         ctreeView.setSizeToBBox();
       }, this);
-console.log(ctreeView.render().$el);
-debugger;
+//console.log(ctreeView.render().$el);
+//debugger;
     }
   });
 

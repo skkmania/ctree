@@ -23,7 +23,6 @@ function buildTree(ctData, containerName, customOptions)
     var options = $.extend({
         nodeRadius: 5, fontSize: 12
     }, customOptions);
-debugger;
     // Calculate total nodes, max label length
     var totalNodes = 0;
     var maxLabelLength = 0;
@@ -63,7 +62,6 @@ debugger;
         */
     var nodes = tree.nodes(ctData);
     var links = tree.links(nodes);
-debugger;
     /*
         <svg>
             <g class="container" />
@@ -75,9 +73,6 @@ debugger;
     var layoutRoot = svgCanvas.append("svg:g").attr("class", "container")
                               .attr("transform", "translate(" + maxLabelLength + ",0)");
                              //.attr("transform", "translate(" + 20 + ",0)");
-console.log('------before building tree---------');
-console.log(layoutRoot);
-debugger;
 
     // Edges between nodes as a <path class="link" />
     var link = d3.svg.diagonal()
@@ -175,7 +170,7 @@ debugger;
       vbox_y -= d3.event.dy;
       return layoutRoot.attr("translate", "" + vbox_x + " " + vbox_y); //基点の調整。svgタグのtranslate属性を更新
     });
-    svgCanvas.call(drag);
+    //svgCanvas.call(drag);
 
     zoom = d3.behavior.zoom().on("zoom", function(d) {
       var befere_vbox_width, before_vbox_height, d_x, d_y;
@@ -187,13 +182,9 @@ debugger;
       d_y = (before_vbox_height - vbox_height) / 2;
       vbox_x += d_x;
       vbox_y += d_y;
-      return svgCanvas.attr("viewBox", "" + vbox_x + " " + vbox_y + " " + vbox_width + " " + vbox_height);  //svgCanvasタグのviewBox属性を更新
+      return svgCanvas.attr("viewBox", "" + x + "," + y + "," + width + "," + height);  //svgCanvasタグのviewBox属性を更新
+      //return svgCanvas.attr("viewBox", "" + vbox_x + " " + vbox_y + " " + vbox_width + " " + vbox_height);  //svgCanvasタグのviewBox属性を更新
     });
-    svgCanvas.call(zoom);   
-console.log('------after building tree---------');
-console.log(layoutRoot);
-console.log(svgCanvas);
-console.log('------end---------');
-debugger;
+    //svgCanvas.call(zoom);   
     return svgCanvas;
 }
