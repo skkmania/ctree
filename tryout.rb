@@ -2,6 +2,14 @@
 # -*- coding:utf-8 -*-
 # tryout.rb
 #
+# ある数が、30step downするあいだにどのくらい小さくなるものか、を見るためのスクリプト
+#    p,q をある範囲で動かして、ひたすら実際にpn + qの規則にのっとり計算させ、30step内の最小値などを報告する
+#    報告先はファイルを指定する。(GoogleDriveのspreadsheetを指定することも可能。)
+# Usage:
+#  default値を最大に使用するケース
+#  ruby tryout.rb -t ある数x(30ケタ程度のものを想定している) -o 出力先ファイル名
+#    こうすると、
+#     p = 6 と p = 7 
 require 'fileutils'
 require 'optparse'
 require 'prime'

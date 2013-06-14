@@ -51,6 +51,6 @@ end
 
 if __FILE__ == $0
   p = Patterns.new(p:ARGV[0].to_i, len:ARGV[1].to_i)
-  puts p.return_array
+  puts p.return_array.to_s
 end
 
