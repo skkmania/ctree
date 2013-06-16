@@ -56,6 +56,38 @@ describe 'Patterns#delete_if_both_side_is_nonzero_digit' do
   end
 end
 
+describe 'Patterns#delete_if_00_not_found' do
+  it "should delete elements from base_array if the element does not have any 0 series" do
+    p = Patterns.new p:4, len:5
+    p.generate_base
+    expect(p.base_array.include? "10101").to eq(true)
+    expect(p.base_array.include? "20202").to eq(true)
+    expect(p.base_array.include? "10020").to eq(true)
+    expect(p.base_array.include? "10200").to eq(true)
+    p.delete_if_00_not_found
+    expect(p.base_array.include? "10101").to eq(false)
+    expect(p.base_array.include? "20202").to eq(false)
+    expect(p.base_array.include? "10020").to eq(true)
+    expect(p.base_array.include? "10200").to eq(true)
+  end
+end
+
+describe 'Patterns#delete_if_any_cycle_occurs' do
+  it "should delete elements from base_array if the element is totally composed with cycles" do
+    p = Patterns.new p:4, len:6
+    p.generate_base
+    expect(p.base_array.include? "101010").to eq(true)
+    expect(p.base_array.include? "200200").to eq(true)
+    expect(p.base_array.include? "101011").to eq(true)
+    expect(p.base_array.include? "220202").to eq(true)
+    p.delete_if_any_cycle_occurs
+    expect(p.base_array.include? "101010").to eq(false)
+    expect(p.base_array.include? "200200").to eq(false)
+    expect(p.base_array.include? "101011").to eq(true)
+    expect(p.base_array.include? "220202").to eq(true)
+  end
+end
+
 describe 'Patterns#rotate_duplication_check' do
   it "should delete elements from base_array if the rotation of the element is in base_array" do
     p = Patterns.new p:4, len:4
