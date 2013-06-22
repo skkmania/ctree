@@ -72,7 +72,7 @@ describe 'Patterns#delete_if_00_not_found' do
   end
 end
 
-describe 'Patterns#delete_if_any_cycle_occurs' do
+describe 'Patterns#delete_if_cycle_occurs' do
   it "should delete elements from base_array if the element is totally composed with cycles" do
     p = Patterns.new p:4, len:6
     p.generate_base
@@ -80,7 +80,7 @@ describe 'Patterns#delete_if_any_cycle_occurs' do
     expect(p.base_array.include? "200200").to eq(true)
     expect(p.base_array.include? "101011").to eq(true)
     expect(p.base_array.include? "220202").to eq(true)
-    p.delete_if_any_cycle_occurs
+    p.delete_if_cycle_occurs
     expect(p.base_array.include? "101010").to eq(false)
     expect(p.base_array.include? "200200").to eq(false)
     expect(p.base_array.include? "101011").to eq(true)
@@ -114,6 +114,25 @@ describe 'Patterns#rotate_duplication_check' do
     expect(p.base_array.include? "10020").to eq(false)
     expect(p.base_array.include? "10200").to eq(false)
     expect(p.base_array.include? "10000").to eq(true)
+  end
+end
+
+describe 'Patterns#plus_minus_check' do
+  it "should delete elements from base_array if the balance of num of 0 in the element results x to be minus" do
+    p = Patterns.new p:4, len:9
+    p.generate_base
+    expect(p.base_array.include? "101010100").to eq(true)
+    p.plus_minus_check
+    expect(p.base_array.include? "101010100").to eq(false)
+
+    p = Patterns.new p:5, len:9
+    p.generate_base
+    p.delete_series_of_nonzero_digit
+    p.delete_if_both_side_is_nonzero_digit
+    p. delete_if_00_not_found
+    expect(p.base_array.include? "101010100").to eq(true)
+    p.plus_minus_check
+    expect(p.base_array.include? "101010100").to eq(true)
   end
 end
 

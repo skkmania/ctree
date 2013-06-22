@@ -17,7 +17,7 @@ class Patterns
   #
   #  まずpatternの素材をつくっておく。
   #  後でここからpatternではないものを取り除いて最終報告とする
-  #  素材としても、0始まりのものは後で取り除くのが確実なのではじめから生成しない
+  #  0で始まるものは後で取り除くのが確実なのではじめから生成しない
   #  素材例 : r = 3, len = 3 のとき 3**2 から 3**3ー1までを3進法表記で生成する
   #    100, 101, 102, 120, 121, 122, 200, 201, 202, 210, 211, 212, 220, 221, 222
   def generate_base
@@ -50,7 +50,7 @@ class Patterns
   # 例: 100100 では 100 がくりかえしている。このようなpatternは長さ6のpattern
   # ではなく、長さ3のpatternとして扱われなければならない
   #
-  def delete_if_any_cycle_occurs
+  def delete_if_cycle_occurs
     @base_array.delete_if{|s|
        md = s.match(/(\d+)\1+/)
        unless md
@@ -69,10 +69,7 @@ class Patterns
     tmp.each{|s|
       cnt = 1
       rot = s.split('').rotate.join()
-      while cnt < s.size and (!@base_array.include?(rot) or rot == s) do
-        # 生き残ってほしい条件をあげている。rot == s とあるのがミソ。
-        # lenが偶数のときrotateにより自分に一致してしまうことがある。
-        # それは消してはいけないのである。
+      while cnt < s.size and (!@base_array.include?(rot)) do
         cnt+=1
         rot = rot.split('').rotate.join()
       end
@@ -80,19 +77,35 @@ class Patterns
     }
   end  
 
+  #
+  # pattern中の0の個数と非0の個数とpから、xの正負を判断し負なら捨てる
+  #
+  def plus_minus_check
+    @base_array.delete_if{|s|
+       zero = s.count("0")
+       non_zero = s.size - zero
+       @p**non_zero > @r**zero
+    }
+  end
+
   def return_array
     generate_base
     delete_series_of_nonzero_digit
     delete_if_both_side_is_nonzero_digit
     delete_if_00_not_found
-    delete_if_any_cycle_occurs
+    delete_if_cycle_occurs
     rotate_duplication_check
+    plus_minus_check
     return @base_array
   end
 end
 
 if __FILE__ == $0
-  p = Patterns.new(p:ARGV[0].to_i, len:ARGV[1].to_i)
-  puts p.return_array.to_s
+  p = ARGV[0].to_i
+  len = ARGV[1].to_i
+  ps = Patterns.new(p:p, len:len)
+  ps.return_array.each_with_index{|pat,idx|
+    puts "#{p},#{len},#{idx},#{pat}"
+  }
 end
 
