@@ -1,0 +1,7 @@
+1
+q: 3
+loop size: 3
+loop min: 3
+loop max: 12
+loop: 12,6,3
+pattern: 011

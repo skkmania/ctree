@@ -1,4 +1,4 @@
-require '../gen_loop_patterns.rb'
+require './gen_loop_patterns.rb'
 
 describe Patterns do
   it "should accept p and length of loops" do

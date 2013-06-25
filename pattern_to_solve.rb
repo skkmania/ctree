@@ -13,7 +13,7 @@ class QD2JS
   def initialize(p:p, len:len, opt:{})
     @p = p
     @len = len 
-    @patterns = Patterns.new(p:@p, len:@len).return_array
+    # @patterns = Patterns.new(p:@p, len:@len).return_hash
     @q_index_ranges = opt[:q_index_ranges] || { 0 => [0] }
     @qr = QRange.new @p, {:q_index_ranges => @q_index_ranges}
   end
@@ -62,14 +62,20 @@ class QD2JS
   end
 end
 
+def main line
+  p, len, id, pattern = line.chomp!.split(',')
+  qj = QD2JS.new p:p.to_i, len:len.to_i
+  expr = qj.pat2expr_for_solve pattern
+  # solve = "solve([x == #{expr}],x)"
+  puts "#{line},#{expr}"
+end
+
 if __FILE__ == $0
-  open(ARGV[0],'r'){|f|
-    f.each_line{|line|
-      p, len, id, pattern = line.chomp!.split(',')
-      qj = QD2JS.new p:p.to_i, len:len.to_i
-      expr = qj.pat2expr_for_solve pattern
-      # solve = "solve([x == #{expr}],x)"
-      puts "#{line},#{expr}"
+  if ARGV[0] == '-'
+    ARGF.each_line{|line| main line }
+  else
+    open(ARGV[0],'r'){|f|
+      f.each_line{|line| main line }
     }
-  }
+  end
 end
