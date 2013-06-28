@@ -15,10 +15,12 @@ class CTracer
     @q = (q ? q : [0] + (1..(@r-1)).to_a.reverse)
     @prev_down_move = nil
     @prev_up_moves = nil
+    @trace = []
+    @loop_ary = []
     validate_q
   end
   attr_accessor :q, :now
-  attr_reader :p, :r, :prev_down_move, :prev_up_moves
+  attr_reader :p, :r, :prev_down_move, :prev_up_moves, :trace, :loop_ary
 
   def validate_q
     raise CTValidateQError, "#{@q.to_s} does not have #{@r} elements" if @q.length != @r
@@ -100,7 +102,6 @@ class CTracer
     end
   end
 
-  # std loopは除く
   def down_to_loop start=nil
     if start
       @now = start
@@ -112,23 +113,24 @@ class CTracer
       @loop_ary.push @shadow
       shadow_down
       @loop_ary.push @shadow
-      if @shadow == 1
-        return nil
-      end
       @loop_ary.shift
       @now = @loop_ary[0]
       @trace.push @now
       @in_loop = (@shadow == @now)
     end
-    @loop_ary = @loop_ary[0..(@loop_ary[1..-1].index @loop_ary[0])]
-    @lp.size = @loop_ary.size
-    @lp.min = @loop_ary.min
-    @lp.max = @loop_ary.max
+    #@loop_ary = @loop_ary[0..(@loop_ary[1..-1].index @loop_ary[0])]
   end
 
   def down
     div, mod = @now.divmod @r
     @now = (mod == 0 ? div : @p * @now + @q[mod] )
+    @prev_down_move = mod
+    @prev_up_moves = nil
+  end
+
+  def shadow_down
+    div, mod = @shadow.divmod @r
+    @shadow = (mod == 0 ? div : @p * @shadow + @q[mod] )
     @prev_down_move = mod
     @prev_up_moves = nil
   end

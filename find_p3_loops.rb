@@ -49,32 +49,35 @@ class Tracer
       @in_loop = (@shadow == @now)
     end
     @loop_ary = @loop_ary[0..(@loop_ary[1..-1].index @loop_ary[0])]
+    @loop_ary.rotate!(@loop_ary.index(@loop_ary.min))
     @lp.size = @loop_ary.size
     @lp.min = @loop_ary.min
     @lp.max = @loop_ary.max
+    get_pattern
   end
 
   def print_loop
     puts "\nq: #{@q.to_s}"
-    puts "loop size: #{@loop_ary.size.to_s}"
-    puts "loop min: #{@loop_ary.min.to_s}"
-    puts "loop max: #{@loop_ary.max.to_s}"
+    puts "id: #{@lp.id}"
+    puts "size: #{@loop_ary.size}"
+    puts "#0: #{@lp.pattern.count('0')}"
+    puts "#1: #{@lp.pattern.count('1')}"
+    puts "min: #{@loop_ary.min}"
+    puts "max: #{@loop_ary.max}"
     puts "loop: #{@loop_ary.join(',')}"
     puts "pattern: #{@lp.pattern}"
   end
 
   def get_pattern
-    min = @loop_ary.min
-    min_pos = @loop_ary.index min
     ret = ''
-    (@loop_ary[min_pos..-1] + @loop_ary[0..(min_pos)]).each_cons(2){|i,j|
+    @loop_ary.each_cons(2){|i,j|
       if i % @r == 0
         ret += '0'
       else
         ret += '1'
       end
     }
-    @lp.pattern = ret 
+    @lp.pattern = ret + '0'
   end
       
   def down step=nil
@@ -147,22 +150,22 @@ def find_loops p, q
     STDERR.print "\r#{n}"
     fallen = t.down_to_loop n
     next unless fallen
-    if t.lp.min != 1
-      t.get_pattern
-      unless loops.find{|lp| t.lp.size == lp.size and t.lp.min == lp.min }
-        # 新発見ならばidを増やし報告する
-        t.lp.id = loops.size + 1
-        loops.push t.lp
-        t.print_loop
-       # t.write_sheet
-      end
+    unless loops.find{|lp| t.lp.size == lp.size and t.lp.min == lp.min }
+      # 新発見ならばidを増やし報告する
+      t.lp.id = loops.size + 1
+      loops.push t.lp
+      t.print_loop
+     # t.write_sheet
     end
   }
   return loops
 end
 if __FILE__ == $0
+  step = ARGV[0].to_i
+  q_start = step*1000
+  q_end = q_start + 999
   p = 3
-  (3001..5000).each{|i|
+  (q_start..q_end).each{|i|
     q = 2*i + 1
     STDERR.puts "  start check q: #{q}"
     find_loops p, q
