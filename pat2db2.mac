@@ -1,0 +1,59 @@
+/*
+   pat2db2.mac
+     input:  pat string
+     output: text file
+
+*/
+
+func0(x):= x/r;
+func1(x):= p*x + q;
+
+/* utils */
+num_char_to_int(c):= cint(c) - cint("0");
+pat_str_to_list(str):= maplist(num_char_to_int, charlist(str));
+pat_2_expr(pat):= block(
+    I:pat_str_to_list(pat),
+    for i:1 thru slength(pat) do if I[i] = 0 then x:expand(func0(x)) else x:expand(func1(x)),
+    x
+  );
+
+/* append results to one file */
+file_output_append:true;
+/* qformula */
+add_qformula(pattern):=
+  block(
+    expression:pat_2_expr(pattern),
+    kill(x),
+    a:solve(x=expression,x),
+    b:factor(rhs(a[1])),
+    string(b)
+  );
+
+/* expand qformula with concrete values of p,r */
+add_p3_formula(pattern):=
+  block(
+    p:3,
+    r:2,
+    kill(x),
+    expression:pat_2_expr(pattern),
+    kill(x),
+    a:solve(x=expression,x),
+    string(factor(rhs(a[1])))
+  );
+
+/* concat all */
+make_a_line(pid,pattern):=
+  block(
+    s1:add_qformula(pattern),
+    s2:add_p3_formula(pattern),
+    s3:tex1(b),
+    /* sall:sconcat(pid,",",s1,s2,s3), */
+    with_stdout("tmp.out", print(pid)),
+    with_stdout("tmp.out", print(s1)),
+    with_stdout("tmp.out", print(s2)),
+    with_stdout("tmp.out", print(s3))
+  );
+
+/* main */
+make_a_line(100,"100100000010000101000010"); 
+quit();

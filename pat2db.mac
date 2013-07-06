@@ -1,0 +1,61 @@
+/*
+   pat2db.mac
+     input:  pat string
+     output: text file
+
+*/
+
+func[0](x):= x/r;
+func[1](x):= p*x + q[1];
+
+/* utils */
+num_char_to_int(c):= cint(c) - cint("0");
+pat_str_to_list(str):= maplist(num_char_to_int, charlist(str));
+pat_2_expr(pat):= block(
+    I:pat_str_to_list(pat),
+    for i:1 thru slength(pat) do x:func[I[i]](x),
+    x
+  );
+/* get expression from pattern */
+expression:pat_2_expr(pattern);
+
+/* append results to one file */
+file_output_append:true;
+/* qformula */
+add_qformula(pattern):=
+  block(
+    kill(x),
+    a:solve(x=expression,x),
+    b:factor(rhs(a[1])),
+    string(b)
+  );
+
+/* expand qformula with concrete values of p,r */
+add_p3_formula(pattern):=
+  block(
+    p:3,
+    r:2,
+    kill(x),
+    p3_expr:pat_2_expr(pattern),
+    kill(x),
+    a:solve(x=p3_expr,x),
+    string(factor(rhs(a[1])))
+  );
+
+/* concat all */
+make_a_line(pid,pattern):=
+  block(
+    s0:string(expression),
+    s1:add_qformula(pattern),
+    s2:add_p3_formula(pattern),
+    s3:tex1(b),
+    with_stdout("tmp.out", print(pid)),
+    with_stdout("tmp.out", print(s0)),
+    with_stdout("tmp.out", print(s1)),
+    with_stdout("tmp.out", print(s2)),
+    with_stdout("tmp.out", print(s3))
+  );
+
+/* main */
+make_a_line(pid,pattern);
+quit();

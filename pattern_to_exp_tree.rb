@@ -1,9 +1,13 @@
 #!/usr/bin/env ruby
 # -*- coding:utf-8 -*-
 #
-#  pattern_to_exp.rb :
+#  pattern_to_exp_tree.rb :
 #    convert a loop pattern to a tree of expression 
 #
+#  input sample
+#  "1010"
+#  output sample
+#  [:div, [:+, [:*, 4, [:div, [:+, [:*, 4, :x], 2], 3]], 2], 3]
 
 class Parser
   def initialize p:3, q:nil, pat:""

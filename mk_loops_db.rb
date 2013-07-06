@@ -24,6 +24,12 @@ class Register
     @session = Mysql2::Client.new opt
   end
 
+  def get_pid pat
+    q = "select pid from patterns where pattern = '#{pat}'";
+    res = @session.query(q).to_a[0]
+    res ? res['pid'] : nil
+  end
+
   def get_max_id_of_loop
     q = 'select max(id) from loops';
     @session.query(q).to_a[0].values[0]
@@ -87,12 +93,31 @@ class Register
       puts pat if cnt == 0
     }
   end
+
+  def put_formulas
+    open(@fname).readlines.each_slice(9){|lines|
+      pat = lines[0].chomp
+      exp = lines[1].chomp.split('== ')[1]
+      form = lines[4].chomp.split('== ')[1]
+      p3form = lines[7].chomp.sub('==','=')
+      upd = "update patterns set expression = '#{exp}', qformula = '#{form}'  where pattern = '#{pat}'"
+      @session.query upd
+
+      pid = get_pid pat
+      if pid
+        ins_p3 = "insert into p3_formulas (pid, p3_formula) values (#{pid}, '#{p3form}')"
+        @session.query ins_p3
+      end
+    }
+  end
+
 end
 
 if __FILE__ == $0
   fname = ARGV[0]
   rg = Register.new fname
   rg.start_session
-  rg.process
+  #rg.process
+  rg.put_formulas
 end
 
