@@ -8,6 +8,8 @@
 #   このスクリプトは使い捨て
 #   
 require 'mysql2'
+require 'net/ssh'
+require 'net/scp'
 
 class Register
   def initialize
@@ -31,14 +33,27 @@ class Register
   end
 
   def run_maxima pid, pattern
-    res = `maxima -q --batch-string='pid:#{pid}$pattern:"#{pattern}"$batchload("pat2db.mac");'`
+    cmd = %|(cd workspace/ctree;sage -maxima -q --batch-string="pid:#{pid};pattern:\\"#{pattern}\\";batchload(\\"pat2db.mac\\");")|
+    res = exec_ssh 'ml2013', 'skkmania', cmd
     if /Error/ =~ res
       puts "error at #{pid}, #{pattern}"
     else
-      # puts "succeeded. : #{res}"
+      #system "scp ml2013:/home/skkmania/workspace/ctree/tmp.out ."
+      puts "succeeded. : #{res.split("\n").select{|l| /pid|pattern/ =~ l }.join(" : ")}"
     end
   end
 
+  def exec_ssh(hostname, username, cmd)
+    ret = nil
+    begin
+      Net::SSH.start(hostname, username) do |ssh|
+        ret = ssh.exec! cmd
+      end
+      ret
+    rescue
+    end
+  end
+    
   def maxima_session
     (0..200).to_a.each do |idx|
       get_next_unit_pid_and_pattern(idx).each{|h|
@@ -49,6 +64,7 @@ class Register
   end
 
   def update_db
+    system "scp ml2013:/home/skkmania/workspace/ctree/tmp.out ."
     open('tmp.out').readlines.each_slice(5){|lines|
       pid = lines[0].chomp
       expr = lines[1].chomp
@@ -77,7 +93,7 @@ if __FILE__ == $0
   rg = Register.new
   rg.start_session
   #rg.run_maxima ARGV[0], ARGV[1]
-  #rg.maxima_session
+  rg.maxima_session
   rg.update_db
 end
 

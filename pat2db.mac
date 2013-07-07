@@ -26,7 +26,7 @@ add_qformula(pattern):=
   block(
     kill(x),
     a:solve(x=expression,x),
-    b:factor(rhs(a[1])),
+    b:factor(num(rhs(a[1])))/denom(rhs(a[1])),
     string(b)
   );
 
@@ -50,10 +50,10 @@ make_a_line(pid,pattern):=
     s2:add_p3_formula(pattern),
     s3:tex1(b),
     with_stdout("tmp.out", print(pid)),
-    with_stdout("tmp.out", print(s0)),
-    with_stdout("tmp.out", print(s1)),
-    with_stdout("tmp.out", print(s2)),
-    with_stdout("tmp.out", print(s3))
+    with_stdout("tmp.out", printf(true, "~a~%", s0)),
+    with_stdout("tmp.out", printf(true, "~a~%", s1)),
+    with_stdout("tmp.out", printf(true, "~a~%", s2)),
+    with_stdout("tmp.out", printf(true, "~a~%", s3))
   );
 
 /* main */
