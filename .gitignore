@@ -3,6 +3,7 @@
 *.log
 *.gexf
 css/*
+tmp.out
 public/css/*
 data/*
 public/js/vendor/*

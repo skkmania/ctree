@@ -35,10 +35,13 @@ class Register
   def run_maxima pid, pattern
     cmd = %|(cd workspace/ctree;sage -maxima -q --batch-string="pid:#{pid};pattern:\\"#{pattern}\\";batchload(\\"pat2db.mac\\");")|
     res = exec_ssh 'ml2013', 'skkmania', cmd
+    unless res
+      puts "no answer from ml2013"
+      return
+    end
     if /Error/ =~ res
       puts "error at #{pid}, #{pattern}"
     else
-      #system "scp ml2013:/home/skkmania/workspace/ctree/tmp.out ."
       puts "succeeded. : #{res.split("\n").select{|l| /pid|pattern/ =~ l }.join(" : ")}"
     end
   end
@@ -55,16 +58,19 @@ class Register
   end
     
   def maxima_session
-    (0..200).to_a.each do |idx|
+    (63..200).to_a.each do |idx|
       get_next_unit_pid_and_pattern(idx).each{|h|
         run_maxima h['pid'], h['pattern']
       }
+      system "scp ml2013:/home/skkmania/workspace/ctree/tmp.out ."
+      cmd = %|(cd workspace/ctree;mv tmp.out data/p3_patterns/source_#{idx}.txt)|
+      exec_ssh 'ml2013', 'skkmania', cmd
+      update_db
     end
     puts " *** \n end maxima session \n ***"
   end
 
   def update_db
-    system "scp ml2013:/home/skkmania/workspace/ctree/tmp.out ."
     open('tmp.out').readlines.each_slice(5){|lines|
       pid = lines[0].chomp
       expr = lines[1].chomp
@@ -73,8 +79,8 @@ class Register
       tex = lines[4].chomp.gsub('\\','\\\\\\\\')
       upd_expr = "update  patterns SET expression = '#{expr}', qformula = '#{q_formula}' WHERE pid = #{pid}"
       @session.query upd_expr
-      upd_q3f = "update  p3_formulas SET p3_formula = '#{p3_formula}' WHERE pid = #{pid}"
-      @session.query upd_q3f
+      ins_q3f = "insert into  p3_formulas (pid, p3_formula) values (#{pid}, '#{p3_formula}') on duplicate key update p3_formula = '#{p3_formula}'"
+      @session.query ins_q3f
       ins_texs = "insert into  formula_texs (pid, formula_tex) values (#{pid}, '#{tex}') on duplicate key update formula_tex = '#{tex}'"
       #upd_texs = "update  formula_texs SET formula_tex = '#{tex}' WHERE pid = #{pid}"
       @session.query ins_texs
@@ -94,6 +100,6 @@ if __FILE__ == $0
   rg.start_session
   #rg.run_maxima ARGV[0], ARGV[1]
   rg.maxima_session
-  rg.update_db
+  #rg.update_db
 end
 
