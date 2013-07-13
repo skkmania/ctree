@@ -9,7 +9,7 @@ CREATE TABLE patterns(
   pid  int not null primary key,
   pattern varchar(10000) not null,
   expression varchar(30000) not null,
-  qformula varchar(1000) not null
+  qformula varchar(30000) not null
 ) engine=InnoDB;
 create index pattern_idx on patterns(pattern);
 
@@ -50,12 +50,14 @@ drop table if exists p3_formulas;
 CREATE TABLE p3_formulas(
   pid  int not null primary key,
   p3_formula varchar(500) not null,
+  num  int not null,
+  denom  int not null,
   foreign key(pid) references patterns(pid)
 ) engine=InnoDB;
 
 drop table if exists formula_texs;
 CREATE TABLE formula_texs(
   pid  int not null primary key,
-  formula_tex varchar(1000) not null,
+  formula_tex varchar(30000) not null,
   foreign key(pid) references patterns(pid)
 ) engine=InnoDB;

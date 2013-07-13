@@ -58,7 +58,7 @@ class Register
   end
     
   def maxima_session
-    (63..200).to_a.each do |idx|
+    (201..300).to_a.each do |idx|
       get_next_unit_pid_and_pattern(idx).each{|h|
         run_maxima h['pid'], h['pattern']
       }

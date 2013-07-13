@@ -40,6 +40,21 @@ class Register
     @session.query(q).to_a[0].values[0]
   end
 
+  def pattern_file_to_db
+    pid = get_max_id_of_pattern + 1
+    open(@fname).each_line{|line|
+      pattern = line.chomp.split(',')[-1]
+      find_pat = "select pattern from patterns where pattern = '#{pattern}'"
+      ret = @session.query find_pat
+      if ret.size == 0
+        ins_pat = "insert into patterns (pid, pattern) values (#{pid}, '#{pattern}')"
+        @session.query ins_pat
+        puts "#{pid}, #{pattern} was inserted."
+        pid += 1
+      end
+    }
+  end
+
   def process
     cnt = get_max_id_of_loop + 1
     pid = get_max_id_of_pattern + 1
@@ -117,7 +132,8 @@ if __FILE__ == $0
   fname = ARGV[0]
   rg = Register.new fname
   rg.start_session
+  rg.pattern_file_to_db
   #rg.process
-  rg.put_formulas
+  #rg.put_formulas
 end
 
