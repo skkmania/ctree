@@ -14,6 +14,7 @@ class Patterns
     @n0 = n0
     @n1 = n1
     @len = n0 + n1
+    @base_hash = Hash.new{|h,k| h[k] = Array.new }
   end
   attr_accessor :len
   attr_reader :base_hash
@@ -28,7 +29,9 @@ class Patterns
       pat = ar.inject("10"){|mem,e| mem = mem + "0"*(e - prev - 1) + "10"; prev = e; mem }
       pat = pat + "0"*(@len - pat.size) 
       next if check_if_cycle_occurs pat
-      puts pat
+      next if plus_minus_check pat
+      key = pat.chars.sort.join
+      @base_hash[key].push pat
     }
   end
 
@@ -46,16 +49,48 @@ class Patterns
        end
   end
 
+  #
+  # loopなので、素材の2つが循環して同じならひとつだけ残せばよい
+  #
+  def rotate_duplication_check
+    @base_hash.each{|k,ar|
+      tmp = ar.clone
+      tmp.each{|s|
+        cnt = 1
+        rot = s.split('').rotate.join
+        while cnt < s.size and (!ar.include?(rot)) do
+          cnt+=1
+          rot = rot.split('').rotate.join
+        end
+        ar.delete s if cnt < s.size
+      }
+    }
+  end  
+
+  #
+  # pattern中の0の個数と非0の個数とpから、xの正負を判断し負なら捨てる
+  #
+  def plus_minus_check pat
+       zero = pat.count("0")
+       non_zero = pat.size - zero
+       @p**non_zero > @r**zero
+  end
+
+  def return_hash
+    generate_base
+    rotate_duplication_check
+    return @base_hash
+  end
 end
 
 if __FILE__ == $0
   n0 = ARGV[0].to_i
   n1 = ARGV[1].to_i
-  if 2**n0 - 3**n1 < 0
-    puts "aborting: 2**#{n0} - 3**#{n1} must be positive."
-    exit
-  end
   ps = Patterns.new n0, n1
-  ps.generate_base
+  ps.return_hash.each{|k,ar|
+    ar.each{|pat|
+      puts "#{pat}"
+    }
+  }
 end
 

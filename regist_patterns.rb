@@ -3,17 +3,33 @@
 #   regist_patterns.rb
 #   mysqlのp3_loops DB table のうち
 #   patterns, p3_formulas, formula_texs
-#   のデータを登録する
-#   patternにもとづいてmaximaのマクロでデータを生成する
-#   このスクリプトは使い捨て
+#   にデータを登録する.
+#   patternにもとづいてmaximaのマクロでデータを生成する.
+#   このスクリプトは使い捨て.
+#   (というか、patterns tableにあらたにpatternが追加されたときのみ使う意味がある.
+#   追加ぶんに対して一度使ったらそれで終わり、という意味での「使い捨て」)
+#     2013.7.12現在、@unit( = 50) * 200 のpatternを処理済み
+#   動作：
+#     patterns tableを読み
+#     patternからexpression, qformula、p3_formula, formula_texを算出する
+#        (この算出にはml2013のsage -maximaを使う。)
+#     それぞれを該当するtableへ登録する
 #   
 require 'mysql2'
 require 'net/ssh'
 require 'net/scp'
 
 class Register
-  def initialize
+  def initialize post_fix
+    # この数字は作業のまとめ単位を意味する
+    # @unit=50ならば
+    # 50個ずつpatternsからpatternを読み、
+    # ml2013のmaximaで50個ぶんの計算結果をfile(tmp.out)に出力し
+    # それをこのhostにコピーし、読みこみ、DBへ登録する
     @unit = 50
+    @p_tab_name = "patterns" + post_fix
+    @f_tab_name = "p3_formulas" + post_fix
+    @t_tab_name = "formula_texs" + post_fix
   end
 
   def start_session
@@ -27,8 +43,13 @@ class Register
     @session = Mysql2::Client.new opt
   end
 
+  def get_count_of_patterns
+    q = "select count(*) as cnt from #{@p_tab_name}"
+    @session.query(q).to_a[0]['cnt']
+  end
+
   def get_next_unit_pid_and_pattern index
-    q = "select pid, pattern from patterns limit #{index*@unit}, #@unit"
+    q = "select pid, pattern from #{@p_tab_name} where expression = '' order by pid limit #{index*@unit}, #@unit"
     @session.query(q).to_a
   end
 
@@ -58,7 +79,9 @@ class Register
   end
     
   def maxima_session
-    (201..300).to_a.each do |idx|
+    system "ssh ml2013 rm /home/skkmania/workspace/ctree/tmp.out"
+    cnt = get_count_of_patterns
+    (0..cnt/@unit).to_a.each do |idx|
       get_next_unit_pid_and_pattern(idx).each{|h|
         run_maxima h['pid'], h['pattern']
       }
@@ -77,29 +100,21 @@ class Register
       q_formula = lines[2].chomp
       p3_formula = lines[3].chomp
       tex = lines[4].chomp.gsub('\\','\\\\\\\\')
-      upd_expr = "update  patterns SET expression = '#{expr}', qformula = '#{q_formula}' WHERE pid = #{pid}"
+      upd_expr = "update  #{@p_tab_name} SET expression = '#{expr}', qformula = '#{q_formula}' WHERE pid = #{pid}"
       @session.query upd_expr
-      ins_q3f = "insert into  p3_formulas (pid, p3_formula) values (#{pid}, '#{p3_formula}') on duplicate key update p3_formula = '#{p3_formula}'"
+      ins_q3f = "insert into  #{@f_tab_name} (pid, p3_formula) values (#{pid}, '#{p3_formula}') on duplicate key update p3_formula = '#{p3_formula}'"
       @session.query ins_q3f
-      ins_texs = "insert into  formula_texs (pid, formula_tex) values (#{pid}, '#{tex}') on duplicate key update formula_tex = '#{tex}'"
-      #upd_texs = "update  formula_texs SET formula_tex = '#{tex}' WHERE pid = #{pid}"
+      ins_texs = "insert into  #{@t_tab_name} (pid, formula_tex) values (#{pid}, '#{tex}') on duplicate key update formula_tex = '#{tex}'"
       @session.query ins_texs
     }
   end
-=begin
-      if ret.size == 0
-        ins_pat = "insert into patterns (pid, pattern) values (#{pid}, '#{pattern}')"
-        @session.query ins_pat
-      end
-=end
 
 end
 
 if __FILE__ == $0
-  rg = Register.new
+  post_fix = ARGV[0]
+  rg = Register.new post_fix
   rg.start_session
-  #rg.run_maxima ARGV[0], ARGV[1]
   rg.maxima_session
-  #rg.update_db
 end
 
