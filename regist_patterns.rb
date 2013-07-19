@@ -27,6 +27,7 @@ class Register
     # ml2013のmaximaで50個ぶんの計算結果をfile(tmp.out)に出力し
     # それをこのhostにコピーし、読みこみ、DBへ登録する
     @unit = 50
+    @post_fix = post_fix
     @p_tab_name = "patterns" + post_fix
     @f_tab_name = "p3_formulas" + post_fix
     @t_tab_name = "formula_texs" + post_fix
@@ -48,8 +49,8 @@ class Register
     @session.query(q).to_a[0]['cnt']
   end
 
-  def get_next_unit_pid_and_pattern index
-    q = "select pid, pattern from #{@p_tab_name} where expression = '' order by pid limit #{index*@unit}, #@unit"
+  def get_next_unit_pid_and_pattern
+    q = "select pid, pattern from #{@p_tab_name} where expression = '' order by pid limit #{@unit}"
     @session.query(q).to_a
   end
 
@@ -80,15 +81,19 @@ class Register
     
   def maxima_session
     system "ssh ml2013 rm /home/skkmania/workspace/ctree/tmp.out"
-    cnt = get_count_of_patterns
-    (0..cnt/@unit).to_a.each do |idx|
-      get_next_unit_pid_and_pattern(idx).each{|h|
+    system "ssh ml2013 mkdir /home/skkmania/workspace/ctree/data/#{@post_fix}"
+    ar = get_next_unit_pid_and_pattern
+    while ar.size > 0 do
+      ar.each{|h|
         run_maxima h['pid'], h['pattern']
       }
+      pids = ar.map{|h| h['pid'].to_i }
+      idx = "#{pids.min}_#{pids.max}"
       system "scp ml2013:/home/skkmania/workspace/ctree/tmp.out ."
-      cmd = %|(cd workspace/ctree;mv tmp.out data/p3_patterns/source_#{idx}.txt)|
+      cmd = %|(cd workspace/ctree;mv tmp.out data/p3_patterns/#{@post_fix}/source_#{idx}.txt)|
       exec_ssh 'ml2013', 'skkmania', cmd
       update_db
+      ar = get_next_unit_pid_and_pattern
     end
     puts " *** \n end maxima session \n ***"
   end
